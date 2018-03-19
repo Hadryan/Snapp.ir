@@ -1,0 +1,180 @@
+extends ../layout
+
+block pageTitle
+  title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+      .page-content
+        
+
+        // BEGIN PAGE HEADER
+        .row
+          .col-md-12
+            // BEGIN PAGE TITLE & BREADCRUMB
+            h3
+              | مدیریت کاربران
+            ul.page-breadcrumb.breadcrumb
+              li
+                i.fa.fa-home
+                a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                i.fa.fa-angle-left
+              li
+                a(href='/backend/backend-users') مدیریت کاربران
+            // END PAGE TITLE & BREADCRUMB
+        // END PAGE HEADER
+
+
+
+        // BEGIN DASHBOARD STATS
+        .row
+          .col-md-12
+            // BEGIN EXAMPLE TABLE PORTLET
+            .portlet.box.green-haze.tasks-widget
+              .portlet-title
+                .caption
+                  i.fa.fa-globe
+                    |   جدول مدیریت کاربران
+                .tools
+                  a.collapse(href='javascript:;')
+                  a.config(href='#portlet-config', data-toggle='modal')
+                  a.reload(href='javascript:;')
+                  a.remove(href='javascript:;')
+              .portlet-body
+                .task-content
+                  .table-toolbar
+                    .btn-group
+                      a#addRecordBtn.btn.green(href='/backend/backend-users/add')
+                        i.fa.fa-plus
+                          |   اضافه کردن
+                    if userList && userList.length 
+                      .btn-group.tabletools-btn-group.pull-right
+                        button#deleteBtn.btn.red
+                          i.fa.fa-trash-o
+                            |   حذف
+
+
+                  if userList && userList.length
+                    form#frmUser(name='frmUser', method='POST', action='')
+                      table#sample_2.table.table-bordered.table-hover
+                        thead
+                          tr
+                            th.table-checkbox
+                              input.group-checkable(type='checkbox', data-set='#sample_2 .checkboxes')
+                            th
+                              | نام و نام خانوادگی
+                            th.text-center
+                              | پست الکترونیک
+                            th.text-center
+                              | نام کاربری
+                            th.text-center
+                              | تاریخ عضویت
+                            th.text-center
+                              | وضعیت
+                        tbody.task-list
+                          each row, index in userList
+                            tr.odd.gradeX
+                              td
+                                input.checkboxes(name='chkSelect[]', id='chkSelect-#{row.dataValues.id}' type='checkbox', value='#{row.dataValues.id}')
+                              td
+                                | #{row.dataValues.fullname}
+                              td.text-center
+                                a(href='mailto:#{row.dataValues.email}')
+                                  | #{row.dataValues.email}
+                              td.text-center
+                                | #{row.dataValues.username}
+                              td.text-center
+                                span.g2j #{row.dataValues.createdAt}
+                              td.text-center
+                                if row.dataValues.status=='Active'
+                                  span.label.label-sm.label-success
+                                    | فعال
+                                else
+                                  span.label.label-sm.label-danger
+                                    | غیر فعال
+
+                                span.task-config
+                                  .task-config-btn.btn-group
+                                    //a(href='/backend/backend-users/view/#{row.dataValues.id}')
+                                      //i.fa.fa-eye &nbsp;
+                                    a(href='/backend/backend-users/edit/#{row.dataValues.id}')
+                                      i.fa.fa-pencil &nbsp;
+                                    a(href='/backend/backend-users/delete/#{row.dataValues.id}')
+                                      i.fa.fa-trash-o.red
+                  else
+                    h1 هنوز کاربری تعریف نگردیده است
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS 
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')  
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS 
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+    
+    script.
+      jQuery(document).ready(function() {
+
+          $('.g2j').each(function(i, el){
+            $(el).html( g2j( $(el).html() ) );
+          });
+
+          var theForm = $("#frmUser");
+
+          ioBackendPostLogin = io.connect( '/backend_postLogin' );
+
+          // --------------------------------------------------------------------------------
+          // ---/ Handle Delete Global Event --------------------------------------------------------
+          // --------------------------------------------------------------------------------
+          $('#deleteBtn').on('click', function(event){
+            event.preventDefault();
+            var formData = theForm.serializeJSON();
+            console.log(formData);
+            if ( formData.chkSelect ) {
+              ioBackendPostLogin.emit('backend.user.delete', formData);
+            } else {
+              console.log('select atleast one item!');
+              frmShowError({'ALL' : 'حداقل یک رکورد را برای حذف باید انتخاب نمایید.'});
+            }
+          });      
+
+          ioBackendPostLogin.on('backend.user.delete_res', function(resp){
+            if(resp && resp.result) {
+              // successfully saved form
+              //theForm[0].reset();
+              //console.log('removed ' + resp.data + ' record successfully.');
+              window.location = 'backend-users';
+            } else {
+              if( resp.errorAllObj ) {
+                //console.log(resp.errorAllObj.ALL);
+                frmShowError(resp.errorAllObj);
+              }
+            }
+          });      
+
+
+          // --- Handle Delete Global Event /--------------------------------------------------------
+
+          // --------------------------------------------------------------------------------
+          // ---/ Handle NEED FOR USER AUTHENTICATION Global Event --------------------------
+          // --------------------------------------------------------------------------------
+          ioBackendPostLogin.on('need_authentication', function(resp){
+            if(resp && resp.error) {
+              window.location = 'login';
+            }
+          });      
+          // --- Handle NEED FOR USER AUTHENTICATION Global Event /--------------------------
+
+          TableManaged.init();
+          //Tasks-table.initDashboardWidget();
+      });

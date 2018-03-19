@@ -1,0 +1,142 @@
+if data && data.length
+    form#frmUser(name='frmUser', method='POST', action='')
+        input#dataType(type="hidden" value="#{dataType}")
+        div(class="modal fade" id="myModal" role="dialog")
+            div(class="modal-dialog")
+                div(class="modal-content")
+                    div(class="modal-header")
+                        button(type="button" class="close" data-dismiss="modal")
+                        h4(class="modal-title")
+                            | آیا اطمینان دارید؟
+                    div(class="modal-body" id="mybody")
+                        button(class="btn btn-success" id="yes") بله
+                        button(type="button" class="btn btn-danger" data-dismiss="modal") خیر
+        table#example.table.table-bordered.table-hover
+            thead
+                tr
+                    th.text-left ردیف
+                    th.text-left تاریخ
+                    th.text-left #{dataType == 'passengers' ? 'مسافر' : 'راننده'}
+                    th.text-left #{dataType == 'passengers' ? 'کد سفر' : 'کد راننده'}
+                    th.text-left عنوان
+                    th.text-left
+                    th.text-left وضعیت
+                    th.text-left حذف
+            tbody
+                each row, index in data
+                    tr.odd.gradeX
+                        td.text-left
+                            | #{row.id}
+                        td.text-left(dir='ltr')
+                            if row.createdAt
+                                span.g2j #{row.createdAt}
+                            else
+                                span -
+                        td.text-left()
+                            a(href='#{dataType == "passengers" ? "/backend/passengers/profile/" + row.sender_id : "/backend/verified_drivers/profile?id=" + row.sender_id}')
+                                | #{dataType == 'passengers' ? row.full_name : row.first_name + ' ' + row.last_name}
+                        td.text-left(dir='ltr')
+                            a(href='#{dataType == "passengers" ? "/backend/trips/profile/" + row.trip_id : "/backend/verified_drivers/profile?id=" + row.sender_id}')
+                                | #{dataType == 'passengers' ? row.trip_code : row.sender_id}
+                        td.text-left
+                            | #{row.subject_name}
+                        td.text-left
+                            a(href='/backend/feedback/profile/#{row.id}') مشاهده جزییات
+                        td.text-left
+                            if row.flag_id == 1
+                                select.text-left(name='rr' class='order_status' id="#{row.id}")
+                                    option(value='1' selected) خوانده نشده
+                                    option(value='2') خوانده شده
+                                    option(value='3') پاسخ ارسال شده
+                            else if row.flag_id == 2
+                                select.text-left(name='rr' class='order_status' id="#{row.id}")
+                                    option(value='1') خوانده شده
+                                    option(value='2' selected) خوانده نشده
+                                    option(value='3') پاسخ ارسال شده
+                            else
+                                select.text-left(name='rr' class='order_status' id="#{row.id}")
+                                    option(value='1') خوانده شده
+                                    option(value='2') خوانده نشده
+                                    option(value='3' selected) پاسخ ارسال شده
+                        td.text-left
+                            div(class="target2" id="#{row.id}")
+                                a(href='')
+                                    i.fa.fa-trash-o.red
+
+
+        //ul(class="pagination")
+        //    li(class="paginate_button previous" aria-controls="sample_3" tabindex="0" id="sample_3_previous")
+        //        a.paging(href="javascript:;" id="#{pageParams.target - 1}") قبلی
+        //
+        //        - for (var i = pageParams.start ; i <= pageParams.end ; i++) {
+        //
+        //        if i == pageParams.target
+        //            li(class="paginate_button active " aria-controls="sample_3" tabindex="0")
+        //                a.paging(href="javascript:;" id="#{i}") #{i}
+        //        else
+        //            li(class="paginate_button  " aria-controls="sample_3" tabindex="0")
+        //                a.paging(href="javascript:;" id="#{i}") #{i}
+        //
+        //
+        //        -}
+        //
+        //    li(class="paginate_button next" aria-controls="sample_3" tabindex="0" id="sample_3_next")
+        //        a.paging(href="javascript:;" id="#{pageParams.target + 1}") بعدی
+else
+    h1 هنوز رکوردی تعریف نگردیده است
+script.
+    jQuery(document).ready(function () {
+        var dataType = $("#dataType").val()
+        $(".order_status").on('change', function (event) {
+            var id = $(this).attr('id');
+            var newState = $(this).val();
+            $.post("/backend/change_flag/SupportMessage/" + id, {newState: newState}, function (data) {
+                console.log("data", data)
+            })
+        })
+        $(".target2").on('click', function (event) {
+            event.preventDefault()
+            $("#myModal").modal();
+            var id = $(this).attr('id')
+            console.log("target id")
+            console.log(id)
+            $("#yes").on('click', function (ev) {
+                ev.preventDefault()
+                $("#yes").prop('disabled', true);
+                $.post("/backend/feedback/delete/" + id, {newState: 'Inactive'}, function (data) {
+                    console.log("data", data)
+                    window.location.reload()
+                })
+            })
+        })
+        $('.g2j').each(function (i, el) {
+            $(el).html(g2j($(el).html()));
+        });
+        var theForm = $("#frmUser");
+        $("a.paging").on('click', function (ev) {
+            Pace.restart()
+            $("#saveBtn").prop('disabled', true);
+            var id = $(this).attr('id')
+            var formData = theForm.serializeJSON();
+            $.post('/backend/search/feedback/' + dataType + '/' + id, formData, function (data) {
+                console.log("data", data)
+                $("#saveBtn").prop('disabled', false);
+                $('.question_content').html(data);
+            })
+        })
+        $('#example').dataTable({
+            paginate: true,
+            "pagingType": "full_numbers",
+            "language": {
+                "paginate": {
+                    "first": "<span class='fa fa-angle-double-right'></span>",
+                    "last": "<span class='fa fa-angle-double-left'></span>",
+                    "previous": "<span class='fa fa-angle-right'></span>",
+                    "next": "<span class='fa fa-angle-left'></span>"
+                }
+            },
+            "order": [0, "desc"],
+            "info": false,
+            bFilter: false
+        });
+    });

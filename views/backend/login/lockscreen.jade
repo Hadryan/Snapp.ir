@@ -1,0 +1,65 @@
+extends ../layout-lockscreen
+
+
+block pageTitle
+  title #{appConfig.app.name} #{appConfig.app.version}
+  
+block append jsHeader
+  script.
+    $(function(){      
+      var loginForm = $("#frmLogin");
+
+      ioBackendPreLogin = io.connect( '/backend_preLogin' );
+
+      // --------------------------------------------------------------------------------
+      // ---/ Handle login Event --------------------------------------------------------
+      // --------------------------------------------------------------------------------
+      $('#submitLoginBtn').on('click', function(event){
+        event.preventDefault();
+        var formData = loginForm.serializeJSON();
+        ioBackendPreLogin.emit('login', formData);
+      });      
+
+      ioBackendPreLogin.on('login_res', function(resp){
+        if(resp && resp.result) {
+          // successfully saved form
+          //loginForm[0].reset();
+          window.location = '../dashboard';
+        } else {
+          if( resp.errorAllObj ) {
+            //console.log(resp.errorAllObj.ALL);
+            frmShowError(resp.errorAllObj);
+          }
+        }
+      });      
+      // --- Handle login Event /--------------------------------------------------------
+
+    });
+
+
+block content
+  .page-lock
+    .page-logo
+        a.brand(href='/backend/login')
+          <!-- img(src='/metronic_rtl/assets/admin/layout/img/logo-big.png', alt='logo') -->
+          h1 #{appConfig.app.name}
+      .page-body
+        img.page-lock-img(src='/metronic_rtl/assets/admin/pages/media/profile/profile.jpg', alt='')
+        .page-lock-info
+          h1 #{userDetails.fullname}
+          span.email
+            | #{userDetails.email}
+          span.locked
+            | پنل قفل شده است
+          form#frmLogin.form-inline(action='')
+            .input-group.input-medium
+              input#username(name='username', type='hidden', value='#{userDetails.username}')
+              input#password.form-control(name='password', type='text', placeholder='کلمه عبور')
+              span.input-group-btn
+                button#submitLoginBtn.btn.blue.icn-only(type='submit')
+                  i.m-icon-swapright.m-icon-white
+            .relogin
+              a(href='/backend/login')
+                | شما #{userDetails.fullname} نیستید ؟
+      .page-footer-custom
+        | #{appConfig.app.copyrightYear} © #{appConfig.app.copyrightText}

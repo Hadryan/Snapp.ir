@@ -1,0 +1,331 @@
+extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3.page-title
+                        | Notification
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/notification') Notification
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;')
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue
+                        .portlet-title
+                            .caption
+                                i.fa.fa-cog
+                                    |
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmNotification.horizontal-form(name='frmNotification', method='POST', action='')
+                                input#id(name='id', type='hidden', value='#{ notificationDetail.id }')
+                                .form-body
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                // end form body
+                                .form-actions
+                                    .row
+                                        .col-md-12
+                                            button#saveBtn.btn.green(type='submit')
+                                                i.fa.fa-check
+                                                | &nbsp; ذخیره
+                                        &nbsp;
+    a.btn.default(href='/backend/notification')
+        i.fa.fa-times
+        | &nbsp; انصراف
+
+
+
+
+// END CONTENT
+block cssHeader
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+
+
+
+
+
+
+
+
+
+block jsHeader
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // BEGIN PAGE LEVEL SCRIPTS    
+    script.
+        jQuery(document).ready(function () {
+
+            var theForm = $("#frmNotification");
+
+            ioBackendPostLogin = io.connect('/backend_postLogin');
+
+            // --------------------------------------------------------------------------------
+            // ---/ Handle EDIT Global Event --------------------------------------------------------
+            // --------------------------------------------------------------------------------
+            $('#saveBtn').on('click', function (event) {
+                event.preventDefault();
+
+                var formData = theForm.serializeJSON();
+
+                ioBackendPostLogin.emit('notification.edit', formData);
+
+            });
+
+            ioBackendPostLogin.on('notification.edit_res', function (resp) {
+                if (resp && resp.result) {
+
+                    if (true
+                    ) {
+                        window.location = '../../notification';
+                    }
+
+                } else {
+
+                    if (resp.errorAllObj) {
+                        frmShowError(resp.errorAllObj);
+                        if (resp.isLogin == false) {
+                            window.location = 'logout';
+                        }
+                    }
+
+                }
+            });
+
+            ioBackendPostLogin.on('uploadFile_res', function (resp) {
+                if (resp && resp.result) {
+
+                    if (uploadCounter > 0) {
+                        uploadCounter--;
+                    }
+                    if (uploadCounter <= 0) {
+                        window.location = '../../notification';
+                    }
+                } else {
+
+                    if (resp.errorAllObj) {
+                        //console.log(resp.errorAllObj.ALL);
+                        frmShowError(resp.errorAllObj);
+                        if (resp.isLogin == false) {
+                            window.location = 'logout';
+                        }
+                    }
+
+                }
+
+            });
+
+            // --- Handle EDIT Global Event /--------------------------------------------------------
+
+            // --------------------------------------------------------------------------------
+            // ---/ Handle NEED FOR USER AUTHENTICATION Global Event --------------------------
+            // --------------------------------------------------------------------------------
+            ioBackendPostLogin.on('need_authentication', function (resp) {
+                if (resp && resp.error) {
+                    window.location = 'login';
+                }
+            });
+            // --- Handle NEED FOR USER AUTHENTICATION Global Event /--------------------------
+
+        });

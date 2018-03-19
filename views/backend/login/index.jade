@@ -1,0 +1,138 @@
+extends ../layout-login
+
+
+block pageTitle
+	title #{appConfig.app.name} #{appConfig.app.version}
+
+block append jsHeader
+	script.
+		$(function () {
+			var loginForm = $("#frmLogin");
+			var forgotPassForm = $("#frmForgotPass");
+
+			ioBackendPreLogin = io.connect('/backend_preLogin');
+
+			// --------------------------------------------------------------------------------
+			// ---/ Handle login Event --------------------------------------------------------
+			// --------------------------------------------------------------------------------
+			$('#submitLoginBtn').on('click', function (event) {
+				event.preventDefault();
+				var formData = loginForm.serializeJSON();
+				ioBackendPreLogin.emit('login', formData);
+			});
+
+			ioBackendPreLogin.on('login_res', function (resp) {
+				if (resp && resp.result) {
+					// successfully saved form
+					//loginForm[0].reset();
+					window.location = 'dashboard';
+				} else {
+					if (resp.errorAllObj) {
+						//console.log(resp.errorAllObj.ALL);
+						frmShowError(resp.errorAllObj);
+					}
+				}
+			});
+			// --- Handle login Event /--------------------------------------------------------
+
+
+			// --------------------------------------------------------------------------------
+			// ---/ Handle forgotPassword Event -----------------------------------------------
+			// --------------------------------------------------------------------------------
+			$('#submitForgotPasswordBtn').on('click', function (event) {
+				event.preventDefault();
+				var formData = forgotPassForm.serializeJSON();
+				ioBackendPreLogin.emit('forgotPass', formData);
+			});
+
+			ioBackendPreLogin.on('forgotPass_res', function (resp) {
+				if (resp && resp.result) {
+					// successfully saved form
+					//loginForm[0].reset();
+					window.location = 'dashboard';
+				} else {
+					if (resp.errorAllObj) {
+						//console.log(resp.errorAllObj.ALL);
+						frmShowError(resp.errorAllObj);
+					}
+				}
+			});
+			// --- Handle forgotPassword Event /-------------------------------------------------
+
+
+		});
+
+
+block content
+
+	// BEGIN LOGO
+	.logo
+		a(href="/")
+			<!--img(src="/metronic_rtl/assets/admin/layout/img/logo-big.png", alt="")-->
+			h1 #{appConfig.app.name}
+	// END LOGO
+
+	// BEGIN SIDEBAR TOGGLER BUTTON
+	.menu-toggler.sidebar-toggler
+	// END SIDEBAR TOGGLER BUTTON
+
+	// BEGIN LOGIN
+	.content
+
+		// BEGIN LOGIN FORM
+		form#frmLogin.login-form(action="", method="post")
+			h3.form-title ورود به پنل مدیریت
+			.alert.alert-danger.display-hide
+				button.close(data-close="alert")
+				span
+					| نام کاربری و کلمه عبور خود را وارد نمایید
+			.form-group
+				label.control-label.visible-ie8.visible-ie9 نام کاربری
+				.input-icon
+					i.fa.fa-user
+					input#username.form-control.placeholder-no-fix(type="text", autocomplete="off", placeholder="نام کاربری", name="username")
+			.form-group
+				label.control-label.visible-ie8.visible-ie9 کلمه عبور
+				.input-icon
+					i.fa.fa-lock
+					input#password.form-control.placeholder-no-fix(type="password", autocomplete="off", placeholder="کلمه عبور", name="password")
+			.form-actions
+				label.checkbox
+					input#rememberPassword(type="checkbox", name="rememberPassword", value="1")
+					| مرا به خاطر بسپار
+				button#submitLoginBtn.btn.blue.pull-right(type="submit")
+					| &nbsp; ورود &nbsp;
+					i.m-icon-swapright.m-icon-white
+			.forget-password
+				h4 کلمه عبور را فراموش کردید ؟
+				p
+					| نگران نباشید, کافیست
+					a#forget-password(href="javascript:;")
+						| اینجا
+					| را کلیک کنید
+		// END LOGIN FORM
+
+		// BEGIN FORGOT PASSWORD FORM
+		form#frmForgotPass.forget-form(action="", method="post")
+			h3 کلمه عبور را فراموش کردید ؟
+			p
+				| برای بازیابی کلمه عبور شماره موبایل خود را وارد نمایید
+			.form-group
+				.input-icon
+					i.fa.fa-phone
+					input#mobileNumber.form-control.placeholder-no-fix(type="text", autocomplete="off", placeholder="شماره موبایل", name="mobileNumber")
+			.form-actions
+				button#back-btn.btn(type="button")
+					i.m-icon-swapleft
+					| &nbsp; بازگشت
+				button#submitForgotPasswordBtn.btn.blue.pull-right(type="submit")
+					| &nbsp; ارسال &nbsp;
+					i.m-icon-swapright.m-icon-white
+		// END FORGOT PASSWORD FORM
+
+	// END LOGIN
+
+	// BEGIN COPYRIGHT
+	.copyright
+		| #{appConfig.app.copyrightYear} © #{appConfig.app.copyrightText}
+	// END COPYRIGHT

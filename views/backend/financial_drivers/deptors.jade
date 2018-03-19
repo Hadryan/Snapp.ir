@@ -1,0 +1,256 @@
+extends ../layout
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | مدیریت مالی رانندگان
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') گزارش مالی راننده
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray.tasks-widget
+                        .portlet-title
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body
+                            .task-content
+                                .table-toolbar
+                                    input#user(type="hidden" value="#{userData[0].id}")
+                                    form#frmUser(name='frmUser', method='POST', action='')
+                                        .row
+                                            .col-md-4
+                                                .form-group
+                                                    label زمان آخرین تسویه حساب
+                                                    if userData[0].last_pony_date
+                                                        span.g2j2.form-control.text-left(type="text"  dir='ltr' disabled) #{userData[0].last_pony_date}
+                                            .col-md-4
+                                                .form-group
+                                                    label زمان گزارش گیری
+                                                    span.g2j2.form-control.txt-left(type="text"  dir='ltr' disabled) #{new Date()}
+                                            .col-md-4
+                                                .form-group
+                                                    label نام و نام خانوادگی راننده
+                                                    input.form-control.text-left(type="text" value="#{userData[0].first_name} #{userData[0].last_name}" disabled)
+                                            .col-md-4
+                                                .form-group
+                                                    label موجودی حساب راننده
+                                                    input.form-control.txt-left(type="text" dir='ltr' value="#{userData[0].balance}" disabled)
+                                            .col-md-4
+                                                .form-group
+                                                    label شماره شبا
+                                                    input.form-control.txt-left(type="text" dir='ltr' value="#{userData[0].bank_shaba_number}" disabled)
+                                        hr
+                                        .row
+                                            .col-md-4
+                                                .form-group
+                                                    input.form-control.input-large.text-left(name='trip_code' placeholder="کد سفر" style="font-size:12px")
+                                            .col-md-4
+                                                .form-group
+                                                    select.form-control.input-large.text-left(name='pony_id' style="font-size:12px")
+                                                        option(value='null') وضعیت
+                                                        option(value='true') تسویه شده
+                                                        option(value='false') تسویه نشده
+                                            .col-md-2
+                                                .form-group
+                                                    input(type="submit" value="جستجو" class="btn btn-large green " id="saveBtn")
+                                            .col-md-2
+                                                .form-group
+                                                    input(type="submit" value="خروجی اکسل" class="btn btn-large green " id="excel")
+
+                                .question_content(style='margin-top:60px')
+                                    if data && data.length
+                                        form#frmUser(name='frmUser', method='POST', action='')
+                                            div(class="modal fade" id="myModal" role="dialog" )
+                                                div(class="modal-dialog")
+                                                    div(class="modal-content")
+                                                        div(class="modal-header")
+                                                            button(type="button" class="close" data-dismiss="modal")
+                                                            h4(class="modal-title")
+                                                        div(class="modal-body" id="mybody2")
+                                                            form.horizontal-form()
+                                                                .form-body
+                                                                    .row
+                                                                        .col-md-4
+                                                                            .form-group
+                                                                                label تاریخ تسویه
+                                                                                span.form-control(id="pony_date" dir='ltr' disabled)
+                                                                        .col-md-2
+                                                                            .form-group
+                                                                                label &nbsp
+                                                                                input.form-control(type="submit" value="بستن" class="btn btn-large red " id="closeModal")
+
+                                            table#example.table.table-bordered.table-hover
+                                                thead
+                                                    tr
+                                                        th.text-left ردیف
+                                                        th.text-left سفر
+                                                        th.text-left هزینه سفر
+                                                        th.text-left سهم راننده
+                                                        th.text-left سهم هوبر
+                                                        th.text-left نوع پرداخت
+                                                        th.text-left شرح پرداخت
+                                                        th.text-left وضعیت
+                                                tbody
+                                                    each row, index in data
+                                                        tr.odd.gradeX
+                                                            td.text-left #{row.id}
+                                                            td.text-left
+                                                                a(href='/backend/trips/profile/#{row.id}') #{row.trip_code || '-'}
+                                                            td.text-left #{row.main_price || "-"}
+                                                            td.text-left #{row.driver_slice || "-"}
+                                                            td.text-left #{row.system_slice || "-"}
+                                                            td.text-left #{row.name}
+                                                            td.text-left #{row.payment_name}
+                                                            td.text-left
+                                                                if row.payment_pony_id
+                                                                    a.settled(href="javascript:;" pony_id="#{row.payment_pony_id}") تسویه شده
+                                                                else
+                                                                    | تسویه نشده
+
+                                            //ul(class="pagination")
+                                            //    li(class="paginate_button previous" aria-controls="sample_3" tabindex="0" id="sample_3_previous")
+                                            //        a.paging(href="javascript:;" id="#{pageParams.target - 1}") قبلی
+                                            //
+                                            //        - for (var i = pageParams.start ; i <= pageParams.end ; i++) {
+                                            //
+                                            //        if i == pageParams.target
+                                            //            li(class="paginate_button active " aria-controls="sample_3" tabindex="0")
+                                            //                a.paging(href="javascript:;" id="#{i}") #{i}
+                                            //        else
+                                            //            li(class="paginate_button  " aria-controls="sample_3" tabindex="0")
+                                            //                a.paging(href="javascript:;" id="#{i}") #{i}
+                                            //
+                                            //
+                                            //        -}
+                                            //
+                                            //    li(class="paginate_button next" aria-controls="sample_3" tabindex="0" id="sample_3_next")
+                                            //        a.paging(href="javascript:;" id="#{pageParams.target + 1}") بعدی
+                                    else
+                                        h1 هنوز رکوردی تعریف نگردیده است
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+
+    script.
+        jQuery(document).ready(function () {
+            $('.g2j2').each(function (i, el) {
+                $(el).html(g2j2($(el).html()));
+            });
+            $('.itIsDatePicker').persianDatepicker({
+                formatDate: "YYYY/MM/DD",
+                fontSize: 12,
+                selectedBefore: false
+            });
+            $("#excel").click(function (e) {
+                e.preventDefault();
+                notyfy({
+                    force: true,
+                    timeout: true,
+                    text: "در حال بارگذاری فایل",
+                    type: 'success',
+                    layout: 'top',
+                    closeWith: ['click']
+                });
+                var theForm = $("#frmUser");
+                var formData = theForm.serializeJSON();
+                $.post('/backend/get_report/excel/'+!{id}, formData, function (data) {
+                    $("#saveBtn").prop('disabled', false);
+                    window.location = data
+                    $.notyfy.closeAll()
+                })
+            });
+            var theForm = $("#frmUser");
+            $('#saveBtn').on('click', function (event) {
+                Pace.restart()
+                event.preventDefault();
+                $("#saveBtn").prop('disabled', true);
+                var formData = theForm.serializeJSON();
+                var user_id = $("#user").val()
+                formData.user_id = user_id;
+                $.post('/backend/search/get_report/financial_drivers/1', formData, function (data) {
+                    $('.question_content').html(data);
+                })
+                $(document).ajaxStop(function () {
+                    $("#saveBtn").prop('disabled', false);
+                });
+            });
+            $("a.paging").on('click', function (ev) {
+                Pace.restart()
+                $("#saveBtn").prop('disabled', true);
+                var id = $(this).attr('id')
+                var formData = theForm.serializeJSON();
+                var user_id = $("#user").val()
+                formData.user_id = user_id;
+                console.log("formData", formData)
+                $.post('/backend/search/get_report/financial_drivers/' + id, formData, function (data) {
+                    console.log("data", data)
+                    $("#saveBtn").prop('disabled', false);
+                    $('.question_content').html(data);
+                })
+            })
+            $('.settled').on('click', function () {
+                var pony_id = $(this).attr('pony_id')
+                console.log(pony_id)
+                $.post('/backend/financial_drivers/settle_report/' + pony_id, {}, function (data) {
+                    $("#pony_date").html(data[0].createdAt)
+                    $("#pony_date").html(g2j2($("#pony_date").html()));
+                    $("#myModal").modal('toggle');
+                })
+            })
+            $("#closeModal").on('click', function (event) {
+                event.preventDefault();
+                $("#myModal").modal('toggle');
+            })
+            $('#example').dataTable({
+                paginate: true,
+                "pagingType": "full_numbers",
+                "language": {
+                    "paginate": {
+                        "first": "<span class='fa fa-angle-double-right'></span>",
+                        "last": "<span class='fa fa-angle-double-left'></span>",
+                        "previous": "<span class='fa fa-angle-right'></span>",
+                        "next": "<span class='fa fa-angle-left'></span>"
+                    }
+                },
+                "order": [1, "desc"],
+                "info": false,
+                bFilter: false
+            });
+        });
+

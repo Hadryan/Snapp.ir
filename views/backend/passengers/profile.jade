@@ -1,0 +1,173 @@
+extends ../layout
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | مشخصات مسافر
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت مسافران
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/passengers/profile/#{profile.id}') مشخصات مسافر
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray
+                        .portlet-title
+                            .caption
+                                |  مشخصات مسافر
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmUser.horizontal-form(name='frmUser', method='POST', action='')
+                                .form-body
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label نام و نام خانوادگی
+                                                br
+                                                input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{profile.full_name || '-'}",style="font-size:18px" disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label شماره موبایل
+                                                br
+                                                input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{profile.mobile || '-'}",style="font-size:18px" disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label جنسیت
+                                                br
+                                                input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{(profile.gender_id==1?'مرد':'زن')}",style="font-size:18px" disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label تلفن ثابت
+                                                br
+                                                input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{profile.phone || '-'}",style="font-size:18px" disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label ایمیل
+                                                br
+                                                input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{profile.email  || '-'}",style="font-size:18px" disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label آدرس
+                                                br
+                                                input.form-control.text-center(class="state"  value="#{profile.address || '-'}"  disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label تاریخ تولد
+                                                br
+                                                span.g2j.form-control.text-center(class="state"  value=""  disabled) #{new Date(parseInt(profile.birth_date)) || '-'}
+                                        .col-md-4
+                                            .form-group
+                                                label کل ساعات با هوبر
+                                                br
+                                                input.form-control.text-center(class="state"  value="#{profile.sum_trip_times}"  disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label کل سفر با هوبر
+                                                br
+                                                input.form-control.text-center(class="state"  value="#{profile.sum_trip_counts}"  disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label کل کیلومتر با هوبر
+                                                br
+                                                input.form-control.text-center(class="state"  value="#{profile.sum_trip_distances}"  disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label میزان اعتبار
+                                                br
+                                                input.form-control.text-center(class="state"  value="#{profile.balance}"  disabled)
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label لایک ها
+                                                br
+                                                input.form-control.text-center(class="state"  value="#{profile.like_count}"  disabled)
+                                        .col-md-4
+                                            .form-group
+                                                label دیسلایک ها
+                                                br
+                                                input.form-control.text-center(class="state"  value="#{profile.dislike_count}"  disabled)
+                                    .row
+                                        .col-md-4
+                                            a.btn.green(href='javascript:history.back()' )
+                                                i.fa.fa-times
+                                                | &nbsp; بازگشت
+// END CONTENT
+block cssHeader
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+
+    // END PAGE LEVEL PLUGINS
+    // BEGIN PAGE LEVEL SCRIPTS
+
+    script.
+        jQuery(document).ready(function() {
+            $('.g2j').each(function (i, el) {
+                $(el).html(g2j($(el).html()));
+            });
+
+            $('.itIsDatePicker').persianDatepicker({
+                formatDate: "YYYY/MM/DD",
+                fontSize: 12,
+                selectedBefore: false
+            });
+
+            $("#decline").on('click',function(event){
+                event.preventDefault()
+                $("#myModal").modal();
+                var id = $(this).attr('driver_id');
+                $("#yes").on('click', function (ev) {
+                    ev.preventDefault()
+                    $("#yes").prop('disabled', true);
+                    $.post("/backend/change_state/User/" + id, {newState: 4}, function (data) {
+                        console.log("data", data)
+                        window.location = '/backend/passengers';
+                    })
+                })
+            })
+            $("#accept").on('click', function (event) {
+                event.preventDefault();
+                var id=$(this).attr('driver_id')
+                window.location='/backend/passengers/set_meeting/'+id
+            })
+            $("#setMeeting").on('click', function (event) {
+                event.preventDefault();
+                $("#myModal2").modal('toggle');
+                $("#confirm").on('click',function(event){
+                    event.preventDefault()
+                    var date=$("#visit_date").val();
+                    var id=$(this).attr('driver_id');
+                    $.post('/backend/passengers/set_meeting/'+id,{date:date},function(data){
+                        console.log("date",date)
+                        $("#myModal2").modal('toggle');
+                        frmShowSuccess({'ALL':"قرار حضوری با موفقیت ثبت شد"})
+                    })
+                })
+            })
+        });

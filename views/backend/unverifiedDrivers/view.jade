@@ -1,0 +1,98 @@
+﻿block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    .table-toolbar
+        if userList && userList.length
+            form#frmUser(name='frmUser', method='POST', action='')
+                div(class="modal fade" id="myModal" role="dialog")
+                    div(class="modal-dialog")
+                        div(class="modal-content")
+                            div(class="modal-header")
+                                button(type="button" class="close" data-dismiss="modal")
+                                h4#modalTitle(class="modal-title")
+
+                            div(class="modal-body" id="mybody")
+                                button#modalBtn(type="button" data-dismiss="modal") بستن
+                div تعداد کل نتایج : #{userList.length}
+                table#example.table.table-bordered.table-hover
+                    thead
+                        tr
+                            th.text-left
+                                | ردیف
+                            th.text-left
+                                | نام و نام خانوادگی
+                            th.text-left کد معرف
+                            th.text-left
+                                | خودرو
+                            th.text-left
+                                | شهر
+                            th.text-left
+                                | موبایل
+                            th.text-left
+                                | کد پیگیری
+                            th.text-left
+                                | تاریخ مراجعه
+                            th.text-left
+                                | وضعیت
+                            th.text-left
+
+
+                    tbody
+                        each row, index in userList
+                            tr.odd.gradeX
+                                td.text-left
+                                    | #{row.id}
+                                td.text-left
+                                    | #{row.serviceProviderProfile.first_name} #{row.serviceProviderProfile.last_name}
+                                td.text-left #{row.serviceProviderProfile.representer_code || "-"}
+                                td.text-left
+                                    - var value= row.serviceProviderProfile.serviceProviderSpecialInfo.vehicleBrand || {name:"نا مشخص"}
+                                    | #{value.name}
+                                td.text-left
+                                    - var value= row.serviceProviderProfile.city || {name:"نا مشخص"}
+                                    | #{value.name}
+                                td.text-left
+                                    | #{row.mobile}
+                                td.text-left
+                                    | #{row.serviceProviderProfile.special_code}
+                                td.text-left
+                                    | #{row.serviceProviderProfile.visit_date}
+                                td.text-left
+                                    if row.userSituation.id == 3
+                                        | در دست بررسی
+                                    else
+                                        | عدم تایید
+                                td.text-left
+                                    a.menu-sub(href='/backend/unverified_drivers/profile/#{row.id}')
+                                        | مشاهده درخواست
+        else
+            h1 هنوز رکوردی تعریف نگردیده است
+
+script.
+    jQuery(document).ready(function() {
+
+        $("a:not(.menu-sub,.ah-pro)").on('click', function (ev) {
+            Pace.restart()
+            $("#saveBtn").prop('disabled', true);
+            var id = $(this).attr('id')
+            $.post('/backend/search/unverified_drivers/' + id, {'empty': true}, function (data) {
+                $("#saveBtn").prop('disabled', false);
+                $('.question_content').html(data);
+            })
+        })
+        $('#example').dataTable({
+            paginate: true,
+            "pagingType": "full_numbers",
+            "language": {
+                "paginate": {
+                    "first": "<span class='fa fa-angle-double-right'></span>",
+                    "last": "<span class='fa fa-angle-double-left'></span>",
+                    "previous": "<span class='fa fa-angle-right'></span>",
+                    "next": "<span class='fa fa-angle-left'></span>"
+                }
+            },
+            "order": [0, "desc"],
+            "info": false,
+            "bFilter": false
+        });
+    });

@@ -1,0 +1,94 @@
+﻿block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    .table-toolbar
+        if data && data.length
+            form#frmUser(name='frmUser', method='POST', action='')
+                div تعداد کل نتایج : #{allDataCount}
+                table#example2.table.table-bordered.table-hover
+                    thead
+                        tr
+                            th.text-left ردیف
+                            th.text-left تاریخ
+                            th.text-left ساعت شروع
+                            th.text-left راننده
+                            th.text-left مسافر
+                            th.text-left هزینه سفر
+                            th.text-left نوع پرداخت
+                            th.text-left عملیات
+                    tbody
+                        each row, index in data
+                            tr.odd.gradeX
+                                td.text-left #{index + 1}
+                                td.text-left
+                                    if row.start_time
+                                        spa.g2j #{row.start_time}
+                                    else
+                                        | -
+                                td.text-left #{new Date(row.time).getHours() + ":" + new Date(row.time).getMinutes() || "-"}
+                                td.text-left
+                                    a(href='/backend/verified_drivers/profile?id=#{row.driver_user_id}') #{row.first_name} #{row.last_name}
+                                td.text-left
+                                    a(href='/backend/passengers/profile/#{row.passenger_user_id}') #{row.full_name || "-"}
+                                td.text-left #{row.main_price}
+                                td.text-left #{row.name}
+                                td.text-left
+                                    a(href='/backend/trips/profile/#{row.id}') جزییات
+
+                //ul(class="pagination")
+                //    li(class="paginate_button previous" aria-controls="sample_3" tabindex="0" id="sample_3_previous")
+                //        a.paging(href="javascript:;" id="#{pageParams.target - 1}") قبلی
+                //
+                //        - for (var i = pageParams.start ; i <= pageParams.end ; i++) {
+                //
+                //        if i == pageParams.target
+                //            li(class="paginate_button active " aria-controls="sample_3" tabindex="0")
+                //                a.paging(href="javascript:;" id="#{i}") #{i}
+                //        else
+                //            li(class="paginate_button  " aria-controls="sample_3" tabindex="0")
+                //                a.paging(href="javascript:;" id="#{i}") #{i}
+                //
+                //
+                //        -}
+                //
+                //    li(class="paginate_button next" aria-controls="sample_3" tabindex="0" id="sample_3_next")
+                //        a.paging(href="javascript:;" id="#{pageParams.target + 1}") بعدی
+        else
+            h1 هنوز رکوردی تعریف نگردیده است
+
+script.
+    jQuery(document).ready(function () {
+        $('#example').dataTable({
+            paginate: true,
+            "pagingType": "full_numbers",
+            "language": {
+                "paginate": {
+                    "first": "<span class='fa fa-angle-double-right'></span>",
+                    "last": "<span class='fa fa-angle-double-left'></span>",
+                    "previous": "<span class='fa fa-angle-right'></span>",
+                    "next": "<span class='fa fa-angle-left'></span>"
+                }
+            },
+            "order": [0, "desc"],
+            "info": false,
+            bFilter: false
+        });
+        $('.g2j').each(function (i, el) {
+            $(el).html(g2j($(el).html()));
+        });
+        $('.g2Time').each(function (i, el) {
+            $(el).html(g2Time($(el).html()));
+        });
+        var theForm = $("#frmUser");
+        $("a.paging").on('click', function (ev) {
+            Pace.restart()
+            $("#saveBtn").prop('disabled', true);
+            var id = $(this).attr('id')
+            var formData = theForm.serializeJSON();
+            $.post('/backend/search/trips/' + id, formData, function (data) {
+                console.log("data", data)
+                $("#saveBtn").prop('disabled', false);
+                $('.question_content').html(data);
+            })
+        })
+    });

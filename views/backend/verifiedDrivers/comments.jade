@@ -1,0 +1,118 @@
+extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | نظرات مربوط به راننده
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت رانندگان
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') رانندگان تایید شده
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/verified_drivers/see_messages?id=#{profile.id}') نظرات مربوط به راننده
+
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray.tasks-widget
+                        .portlet-title
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body
+                            .task-content
+                                .table-toolbar
+                                .question_content(style='margin-top:60px')
+                                    if profile.driverComments && profile.driverComments.length
+                                        form#frmUser(name='frmUser', method='POST', action='')
+                                            table#example.table.table-bordered.table-hover
+                                                thead
+                                                    tr
+                                                        th.text-left
+                                                            | ردیف
+                                                        th.text-left
+                                                            | تاریخ
+                                                        th.text-left
+                                                            | نام و نام خانوادگی
+                                                        th.text-left
+                                                            | موبایل
+                                                        th.text-left
+                                                            | متن
+
+
+
+
+
+                                                tbody
+                                                    each row, index in profile.driverComments
+                                                        tr.odd.gradeX
+                                                            td.text-left
+                                                                | #{row.id}
+                                                            td.text-left
+                                                                span.g2j #{ row.createdAt}
+                                                            td.text-left
+                                                                | #{row.passenger.customerProfile.full_name}
+                                                            td.text-left(style="width:85px")
+                                                                | #{row.passenger.mobile}
+                                                            td.text-left
+                                                                | #{row.body}
+
+                                    else
+                                        h1 هنوز رکوردی تعریف نگردیده است
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+
+    script.
+        jQuery(document).ready(function () {
+            $('.g2j').each(function (i, el) {
+                $(el).html(g2j($(el).html()));
+            });
+            $('#example').dataTable({
+                paginate: true,
+                "order": [1, "desc"],
+                "info": false,
+                "bFilter": false,
+                "bSort": false
+            });
+        });
+

@@ -1,0 +1,104 @@
+﻿extends ../layout
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | کد تخفیف جدید
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/discount_coupon/index') کدهای تخفیف
+                            i.fa.fa-angle-left
+                        li
+                            | کد تخفیف جدید
+
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray
+                        .portlet-title
+                            .caption
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmUser.horizontal-form(name='frmUser', method='POST', action='')
+                                .form-body
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label کد تخفیف
+                                                br
+                                                input.form-control.text-left(name='coupon', type='text')
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label درصد تخفیف
+                                                br
+                                                input.form-control.text-left(name='discount_percent' type="text")
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label سقف تخفیف
+                                                br
+                                                input.form-control.text-left(name='discount_max_amount' type="text")
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label تاریخ شروع اعتبار
+                                                br
+                                                input.form-control.text-left.itIsDatePicker(name='start_date' type="text")
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label تاریخ پایان اعتبار
+                                                br
+                                                input.form-control.text-left.itIsDatePicker(name='end_date' type="text")
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label شهر
+                                                br
+                                                select.form-control.text-left(name='city_id')
+                                                    each state,index in States
+                                                        optgroup(label="استان #{state.name}")
+                                                            each city,indexx in state.cities
+                                                                option(value='#{city.id}') #{city.name}
+                                    .row
+                                        .col-md-6
+                                            input.btn.green(type='submit' value='ذخیره')
+
+// END CONTENT
+block cssHeader
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+
+    // END PAGE LEVEL PLUGINS
+    // BEGIN PAGE LEVEL SCRIPTS
+
+    script.
+        jQuery(document).ready(function() {
+            $('.itIsDatePicker').persianDatepicker();
+        });

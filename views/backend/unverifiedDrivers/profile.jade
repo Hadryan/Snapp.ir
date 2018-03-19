@@ -1,0 +1,292 @@
+extends ../layout
+block pageTitle
+	title #{appConfig.app.name} #{appConfig.app.version}
+block content
+	// BEGIN CONTENT
+	.page-content-wrapper
+		.page-content
+			// BEGIN PAGE HEADER
+			.row
+				.col-md-12
+					// BEGIN PAGE TITLE & BREADCRUMB
+					h3
+						| جزییات درخواست
+					ul.page-breadcrumb.breadcrumb
+						li
+							i.fa.fa-home
+							a(href='/backend/dashboard') &nbsp; صفحه اصلی
+							i.fa.fa-angle-left
+						li
+							a(href='javascript:;') مدیریت رانندگان
+							i.fa.fa-angle-left
+						li
+							a(href='/backend/unverified_drivers') رانندگان تایید نشده
+							i.fa.fa-angle-left
+						li
+							a(href='/backend/unverified_drivers/profile/#{profile.id}') جزییات درخواست
+					// END PAGE TITLE & BREADCRUMB
+			// END PAGE HEADER
+			// BEGIN DASHBOARD STATS
+			.row
+				.col-md-12
+					// BEGIN EXAMPLE TABLE PORTLET
+					.portlet.box.blue-chambray
+						.portlet-title
+							.caption
+								|  جزییات درخواست
+							.tools
+								a.collapse(href='javascript:;')
+								a.config(href='#portlet-config', data-toggle='modal')
+								a.reload(href='javascript:;')
+								a.remove(href='javascript:;')
+						.portlet-body.form
+							// BEGIN FORM
+							form#frmUser.horizontal-form(name='frmUser', method='POST', action='')
+								div(class="modal fade" id="myModal" role="dialog")
+									div(class="modal-dialog")
+										div(class="modal-content")
+											div(class="modal-header")
+												button(type="button" class="close" data-dismiss="modal")
+												h4(class="modal-title")
+													| آیا اطمینان دارید؟
+											div(class="modal-body" id="mybody")
+												button(class="btn btn-success" id="yes") بله
+												button(type="button" class="btn btn-danger" data-dismiss="modal") خیر
+
+								div(class="modal fade" id="myModal2" role="dialog" )
+									div(class="modal-dialog")
+										div(class="modal-content")
+											div(class="modal-header")
+												button(type="button" class="close" data-dismiss="modal")
+												h4(class="modal-title")
+													| لطفا تاریخ مراجعه را تعیین کنید
+											div(class="modal-body" id="mybody2")
+												form.horizontal-form()
+													.form-body
+														.row
+															.col-md-4
+																.form-group
+																	input.itIsDatePicker.form-control(type='text' id="visit_date" style="z-index:1151 !important;")
+															.col-md-6
+																.form-group
+																	button(class="btn btn-success" id="confirm" driver_id="#{profile.id}") ثبت
+								.form-body
+									h3.form-section مشخصات فردی
+									.row
+										.col-md-4
+											.form-group
+												label نام و نام خانوادگی
+												br
+												- var name=profile.serviceProviderProfile.first_name+" "+profile.serviceProviderProfile.last_name
+												input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{name}",style="font-size:18px" disabled)
+										.col-md-4
+											.form-group
+												label استان
+												br
+												input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{profile.serviceProviderProfile.city.state.name}",style="font-size:18px" disabled)
+										.col-md-4
+											.form-group
+												label شهر
+												br
+												input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{profile.serviceProviderProfile.city.name}",style="font-size:18px" disabled)
+										.col-md-4
+											.form-group
+												label شماره موبایل
+												br
+												input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{profile.mobile}",style="font-size:18px" disabled)
+										.col-md-4
+											.form-group
+												label ایمیل
+												br
+												input.form-control.text-left(name='fullname', type='text', data-req="true",value="#{profile.email}",style="font-size:18px" disabled)
+										.col-md-4
+											.form-group
+												label شماره کارت
+												br
+												input.form-control.text-center(class="state"  value="#{profile.serviceProviderProfile.bank_atm_number}"  disabled)
+
+									h3.form-section مشخصات خودرو
+									.row
+										.col-md-3
+											label.control-label
+												| خودرو
+											- var name=""
+											if profile.serviceProviderProfile.serviceProviderSpecialInfo
+												if profile.serviceProviderProfile.serviceProviderSpecialInfo.vehicleBrand
+													- name=(profile.serviceProviderProfile.serviceProviderSpecialInfo.vehicleBrand.name || name)
+											if name != ""
+												- name +=profile.serviceProviderProfile.serviceProviderSpecialInfo.vehicleModel.name
+											input.form-control.text-left(type='text',value="#{name}",disabled)
+
+										.col-md-3
+											label.control-label
+												| پلاک
+											- var name=""
+											if profile.serviceProviderProfile.serviceProviderSpecialInfo
+												- name=(profile.serviceProviderProfile.serviceProviderSpecialInfo.vehicle_plaque_left || name)
+											if name != ""
+												- name +=" "+profile.serviceProviderProfile.serviceProviderSpecialInfo.vehicle_plaque_alphabet
+												- name +=" "+profile.serviceProviderProfile.serviceProviderSpecialInfo.vehicle_plaque_right
+												- name +=" ایران "+profile.serviceProviderProfile.serviceProviderSpecialInfo.vehicle_plaque_iran
+											input.form-control.text-left(type='text',value="#{name}",disabled)
+
+										.col-md-3
+											label.control-label
+												| ظرفیت
+												- var name=""
+												if profile.serviceProviderProfile.serviceProviderSpecialInfo
+													- name=(profile.serviceProviderProfile.serviceProviderSpecialInfo.vehicle_capacity || name)
+											input.form-control.text-left(type='text',value="#{name}",disabled)
+									h3.form-section مدارک
+									.row
+										.form-group
+											-var style="width:200px;height:180px"
+											-var url="http://"+appConfig.host.domain+":"+appConfig.host.port+"/"
+											.col-md-4
+												label.control-label
+													| گواهی نامه
+												if profile.serviceProviderProfile.serviceProviderDocument
+													if profile.serviceProviderProfile.serviceProviderDocument.driving_licence_pic
+														a.bigShow(href="javascript:;" date="#{profile.serviceProviderProfile.serviceProviderDocument.driving_licence_expiration_date}")
+															img(src="#{url}#{profile.serviceProviderProfile.serviceProviderDocument.driving_licence_pic}" style="#{style}" expire_date="#{profile.driving_licence_expiration_date}")
+													else
+														img(src="/app/category/default.jpg" style="#{style}")
+												else
+													img(src="/app/category/default.jpg" style="#{style}")
+											.col-md-4
+												label.control-label
+													| معاینه فنی
+												if profile.serviceProviderProfile.serviceProviderDocument
+													if profile.serviceProviderProfile.serviceProviderDocument.technical_diagnosis_pic
+														a.bigShow(href="javascript:;" date="#{profile.serviceProviderProfile.serviceProviderDocument.technical_diagnosis_expiration_date}")
+															img(src="#{url}#{profile.serviceProviderProfile.serviceProviderDocument.technical_diagnosis_pic}" style="#{style}" expire_date="#{profile.technical_diagnosis_expiration_date}")
+													else
+														img(src="/app/category/default.jpg" style="#{style}")
+												else
+													img(src="/app/category/default.jpg" style="#{style}")
+											.col-md-4
+												label.control-label
+													| پشت کارت خودرو
+												if profile.serviceProviderProfile.serviceProviderDocument
+													if profile.serviceProviderProfile.serviceProviderDocument.vehicle_card_back
+														a.bigShow(href="javascript:;")
+															img(src="#{url}#{profile.serviceProviderProfile.serviceProviderDocument.vehicle_card_back}" style="#{style}")
+													else
+														img(src="/app/category/default.jpg" style="#{style}")
+												else
+													img(src="/app/category/default.jpg" style="#{style}")
+
+											.col-md-4
+												label.control-label
+													| روی کارت خودرو
+												if profile.serviceProviderProfile.serviceProviderDocument
+													if profile.serviceProviderProfile.serviceProviderDocument.vehicle_card_front
+														a.bigShow(href="javascript:;")
+															img(src="#{url}#{profile.serviceProviderProfile.serviceProviderDocument.vehicle_card_front}" style="#{style}")
+													else
+														img(src="/app/category/default.jpg" style="#{style}")
+												else
+													img(src="/app/category/default.jpg" style="#{style}")
+											//.col-md-3
+												label.control-label
+													| گواهی عدم سو پیشنه
+												if profile.serviceProviderProfile.serviceProviderDocument
+													if profile.serviceProviderProfile.serviceProviderDocument.clearances_pic
+														a.bigShow(href="javascript:;")
+														img(src="#{url}#{profile.serviceProviderProfile.serviceProviderDocument.clearances_pic}" style="#{style}")
+													else
+														img(src="/app/category/default.jpg" style="#{style}")
+												else
+													img(src="/app/category/default.jpg" style="#{style}")
+											.col-md-4
+												label.control-label
+													| سند خودرو
+												if profile.serviceProviderProfile.serviceProviderDocument
+													if profile.serviceProviderProfile.serviceProviderDocument.vehicle_ownership_document_pic
+														a.bigShow(href="javascript:;")
+															img(src="#{url}#{profile.serviceProviderProfile.serviceProviderDocument.vehicle_ownership_document_pic}" style="#{style}")
+													else
+														img(src="/app/category/default.jpg" style="#{style}")
+												else
+													img(src="/app/category/default.jpg" style="#{style}")
+											.col-md-4
+												label.control-label
+													| بیمه نامه
+												if profile.serviceProviderProfile.serviceProviderDocument
+													if profile.serviceProviderProfile.serviceProviderDocument.vehicle_insurance_pic
+														a.bigShow(href="javascript:;" date="#{profile.serviceProviderProfile.serviceProviderDocument.vehicle_insurance_expiration_date}")
+															img(src="#{url}#{profile.serviceProviderProfile.serviceProviderDocument.vehicle_insurance_pic}" style="#{style}" expire_date="#{profile.vehicle_insurance_expiration_date}")
+													else
+														img(src="/app/category/default.jpg" style="#{style}")
+												else
+													img(src="/app/category/default.jpg" style="#{style}")
+									hr
+									.row
+										.col-md-4
+											button#accept.btn.green(type='submit' driver_id="#{profile.id}")
+												i.fa.fa-check
+												| &nbsp; تایید
+										.col-md-4
+											button#setMeeting.btn.gray(type='submit' driver_id="#{profile.id}")
+												i.fa.fa-check
+												| &nbsp; تنظیم قرار مراجعه حضوری
+										.col-md-4
+											button#decline.btn.red(driver_id="#{profile.id}")
+												i.fa.fa-times
+												| &nbsp; رد کردن راننده
+
+// END CONTENT
+block cssHeader
+	link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+	link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block jsHeader
+	// BEGIN PAGE LEVEL PLUGINS
+	script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+	script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+
+	// END PAGE LEVEL PLUGINS
+	// BEGIN PAGE LEVEL SCRIPTS
+
+	script.
+		jQuery(document).ready(function () {
+			$('.itIsDatePicker').persianDatepicker({
+				formatDate: "YYYY/MM/DD",
+				fontSize: 12,
+				selectedBefore: false
+			});
+
+			$("#decline").on('click', function (event) {
+				event.preventDefault()
+				$("#myModal").modal();
+				var id = $(this).attr('driver_id');
+				$("#yes").on('click', function (ev) {
+					ev.preventDefault()
+					$("#yes").prop('disabled', true);
+					$.post("/backend/change_state/User/" + id, {newState: 4}, function (data) {
+						console.log("data", data)
+						window.location = '/backend/unverified_drivers';
+					})
+				})
+			})
+			$("#accept").on('click', function (event) {
+				event.preventDefault();
+				var id = $(this).attr('driver_id')
+				window.location = '/backend/unverified_drivers/set_meeting/' + id
+			})
+			$("#setMeeting").on('click', function (event) {
+				event.preventDefault();
+				$("#myModal2").modal('toggle');
+				$("#confirm").on('click', function (event) {
+					event.preventDefault()
+					var date = $("#visit_date").val();
+					var id = $(this).attr('driver_id');
+					$.post('/backend/unverified_drivers/set_meeting/' + id, {date: date}, function (data) {
+						console.log("date", date)
+						$("#myModal2").modal('toggle');
+						frmShowSuccess({'ALL': "قرار حضوری با موفقیت ثبت شد"})
+					})
+				})
+			})
+		});

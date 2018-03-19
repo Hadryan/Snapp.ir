@@ -1,0 +1,178 @@
+extends ../layout
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | مدیریت مالی رانندگان
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت مالی رانندگان
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray.tasks-widget
+                        .portlet-title
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body
+                            .task-content
+                                .table-toolbar
+                                    input#data(type='hidden' value='#{JSON.stringify(data)}')
+                                    form#frmUser(name='frmUser', method='POST', action='')
+                                        .row
+                                            .col-md-4
+                                                .form-group
+                                                    label جمع کل
+                                                    input.form-control.text-left(type="text" value="#{data[0].total_balance || '0'}" disabled)
+                                            .col-md-4
+                                                .form-group
+                                                    label شناسه 9 رقمی فایل
+                                                    input#ponyCode.form-control.txt-left(type="text" value="#{pony.code}" disabled)
+                                            .col-md-4
+                                                .form-group
+                                                    label تاریخ تسویه
+                                                    span#ponyDate.g2j2.form-control.text-left(type="text" dir='ltr' disabled) #{pony.createdAt}
+                                        .row
+                                            .col-md-2
+                                                .form-group
+                                                    input(type="submit" value="تهیه فایل واریز به بانک" class="btn btn-large green " id="excel")
+                                            .col-md-2
+                                                .form-group
+                                                    a#settle(href='javascript:;' type="submit"  class="btn btn-large green " ) ثبت تسویه
+
+                                .question_content(style='margin-top:60px')
+                                    if data && data.length && data[0].id
+                                        form#frmUser(name='frmUser', method='POST', action='')
+                                            div(class="modal fade" id="myModal" role="dialog")
+                                                div(class="modal-dialog")
+                                                    div(class="modal-content")
+                                                        div(class="modal-header")
+                                                            button(type="button" class="close" data-dismiss="modal")
+                                                            h4(class="modal-title")
+                                                                | آیا اطمینان دارید؟
+                                                        div(class="modal-body" id="mybody")
+                                                            button(class="btn btn-success" id="yes") بله
+                                                            button(type="button" class="btn btn-danger" data-dismiss="modal") خیر
+                                            table#example.table.table-bordered.table-hover
+                                                thead
+                                                    tr
+                                                        th.text-left
+                                                            | ردیف
+                                                        th.text-left
+                                                            | راننده
+                                                        th.text-left
+                                                            | شماره شبا
+                                                        th.text-left
+                                                            | مبلغ
+
+                                                tbody
+                                                    each row, index in data
+                                                        tr.odd.gradeX
+                                                            td.text-left
+                                                                | #{row.id}
+                                                            td.text-left
+                                                                a(href='/backend/verified_drivers/profile?id=#{row.driver_user_id}')
+                                                                    | #{row.first_name} #{row.last_name}
+                                                            td.text-left
+                                                                | #{row.bank_shaba_number || "-"}
+                                                            td.text-left
+                                                                | #{row.balance}
+
+                                    else
+                                        h1 هنوز رکوردی تعریف نگردیده است
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+
+    script.
+        jQuery(document).ready(function () {
+            $('.g2j2').each(function (i, el) {
+                $(el).html(g2j2($(el).html()));
+            });
+            $("#settle").on('click', function (event) {
+                event.preventDefault();
+                $("#myModal").modal('toggle');
+                $("#yes").on('click', function (ev) {
+                    ev.preventDefault()
+                    $("#yes").prop('disabled', true);
+                    var ponyDate = $("#ponyDate").html();
+                    var ponyCode = $("#ponyCode").val();
+                    var drivers = $("#data").val();
+                    drivers = JSON.parse(drivers);
+                    $("#myModal").modal('toggle');
+                    frmShowSuccess({'ALL': 'لطفا منتطر بمانید'})
+                    $.post('/backend/financial_drivers/do_total_settlement', {
+                        ponyDate: ponyDate,
+                        ponyCode: ponyCode,
+                        drivers: drivers
+                    }, function (data) {
+                        window.location = '/backend/financial_drivers'
+                    })
+                })
+            })
+            $("#excel").click(function (e) {
+                e.preventDefault();
+                notyfy({
+                    force: true,
+                    timeout: true,
+                    text: "در حال بارگذاری فایل",
+                    type: 'success',
+                    layout: 'top',
+                    closeWith: ['click']
+                });
+                var ponyCode = $("#ponyCode").val()
+                $.post('/backend/financial_drivers/total_settlement/bank_output', {code: ponyCode}, function (data) {
+                    $("#saveBtn").prop('disabled', false);
+                    window.location = data
+                    $.notyfy.closeAll()
+                })
+            })
+            $('#example').dataTable({
+                paginate: true,
+                "order": [1, "desc"],
+                "info": false,
+                bFilter: false
+            });
+        });
+
+
+

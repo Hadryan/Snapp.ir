@@ -1,0 +1,123 @@
+if data && data.length
+    form#frmUser(name='frmUser', method='POST', action='')
+        div(class="modal fade" id="myModal" role="dialog" )
+            div(class="modal-dialog")
+                div(class="modal-content")
+                    div(class="modal-header")
+                        button(type="button" class="close" data-dismiss="modal")
+                        h4(class="modal-title")
+                    div(class="modal-body" id="mybody2")
+                        form.horizontal-form()
+                            .form-body
+                                .row
+                                    .col-md-4
+                                        .form-group
+                                            label تاریخ تسویه
+                                            span.form-control(id="pony_date" dir='ltr' disabled)
+                                    .col-md-2
+                                        .form-group
+                                            label &nbsp
+                                            input.form-control(type="submit" value="بستن" class="btn btn-large red " id="closeModal")
+        table#example2.table.table-bordered.table-hover
+            thead
+                tr
+                    th.text-left
+                        | ردیف
+                    th.text-left
+                        | سفر
+                    th.text-left
+                        | هزینه سفر
+                    th.text-left
+                        | سهم راننده
+                    th.text-left
+                        | سهم هوبر
+                    th.text-left
+                        | نوع پرداخت
+                    th.text-left
+                        | شرح پرداخت
+                    th.text-left
+                        | وضعیت
+
+
+
+            tbody
+                each row, index in data
+                    tr.odd.gradeX
+                        td.text-left
+                            | #{row.id}
+                        td.text-left
+                            a(href='/backend/trips/profile/#{row.id}')
+                                | #{row.trip_code || '-'}
+                        td.text-left
+                            | #{row.main_price || "-"}
+                        td.text-left
+                            | #{row.driver_slice || "-"}
+                        td.text-left
+                            | #{row.system_slice || "-"}
+                        td.text-left
+                            | #{row.name}
+                        td.text-left
+                            | #{row.payment_name}
+                        td.text-left
+                            if row.payment_pony_id
+                                a.settled(href="javascript:;" pony_id="#{row.payment_pony_id}") تسویه شده
+                            else
+                                | تسویه نشده
+
+        ul(class="pagination")
+            li(class="paginate_button previous" aria-controls="sample_3" tabindex="0" id="sample_3_previous")
+                a.paging(href="javascript:;" id="#{pageParams.target - 1}") قبلی
+
+                - for (var i = pageParams.start ; i <= pageParams.end ; i++) {
+
+                if i == pageParams.target
+                    li(class="paginate_button active " aria-controls="sample_3" tabindex="0")
+                        a.paging(href="javascript:;" id="#{i}") #{i}
+                else
+                    li(class="paginate_button  " aria-controls="sample_3" tabindex="0")
+                        a.paging(href="javascript:;" id="#{i}") #{i}
+
+
+                -}
+
+            li(class="paginate_button next" aria-controls="sample_3" tabindex="0" id="sample_3_next")
+                a.paging(href="javascript:;" id="#{pageParams.target + 1}") بعدی
+else
+    h1 هنوز رکوردی تعریف نگردیده است
+script.
+    jQuery(document).ready(function () {
+        $("a.paging").on('click', function (ev) {
+            Pace.restart()
+            $("#saveBtn").prop('disabled', true);
+            var id = $(this).attr('id')
+            var theForm = $("#frmUser");
+            var formData = theForm.serializeJSON();
+            var user_id = $("#user").val()
+            formData.user_id = user_id;
+            $.post('/backend/search/get_report/financial_drivers/' + id, formData, function (data) {
+                console.log("data", data)
+                $("#saveBtn").prop('disabled', false);
+                $('.question_content').html(data);
+            })
+        })
+        $('.settled').on('click', function () {
+            var pony_id = $(this).attr('pony_id')
+            console.log(pony_id)
+            $.post('/backend/financial_drivers/settle_report/' + pony_id, {}, function (data) {
+                $("#pony_date").html(data[0].createdAt)
+                $("#pony_date").html(g2j2($("#pony_date").html()));
+                $("#myModal").modal('toggle');
+            })
+        })
+        $("#closeModal").on('click', function (event) {
+            event.preventDefault();
+            $("#myModal").modal('toggle');
+        })
+        $('#example2').dataTable({
+            paginate: false,
+            "order": [1, "desc"],
+            "info": false,
+            bFilter: false
+        });
+    });
+

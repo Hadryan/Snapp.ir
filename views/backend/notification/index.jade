@@ -1,0 +1,166 @@
+﻿extends ../layout
+
+block pageTitle
+  title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+      .page-content
+        
+
+        // BEGIN PAGE HEADER
+        .row
+          .col-md-12
+            // BEGIN PAGE TITLE & BREADCRUMB
+            h3
+              | اعلان ها
+            ul.page-breadcrumb.breadcrumb
+              li
+                i.fa.fa-home
+                a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                i.fa.fa-angle-left
+              li
+                a(href='/backend/notification') اعلان ها
+            // END PAGE TITLE & BREADCRUMB
+        // END PAGE HEADER
+
+
+
+        // BEGIN DASHBOARD STATS
+        .row
+          .col-md-12
+            // BEGIN EXAMPLE TABLE PORTLET
+            .portlet.box.blue-chambray.tasks-widget
+              .portlet-title
+                .caption
+                  i
+                    | اعلان ها
+                .tools
+                  a.collapse(href='javascript:;')
+                  a.config(href='#portlet-config', data-toggle='modal')
+                  a.reload(href='javascript:;')
+                  a.remove(href='javascript:;')
+              .portlet-body
+                .task-content
+                  .table-toolbar
+                    .btn-group
+                      a#addRecordBtn.btn.green(href='/backend/notification/add')
+                        i
+                          |  اضافه کردن
+
+                  if notificationList && notificationList.length
+                    form#frmNotification(name='frmNotification', method='POST', action='')
+                      table#sample_2.table.table-bordered.table-hover
+
+                        thead
+                          tr
+                            th.table-checkbox
+                              input.group-checkable(type='checkbox', data-set='#sample_2 .checkboxes')
+                            th.text-left
+                              | کد
+                            th.text-left
+                              | نوع
+                            th.text-left
+                              | عنوان
+                            th.text-left
+                              | متن
+                            th.text-left
+                              | تصویر
+                            th.text-left
+
+                        tbody
+                          each row, index in notificationList
+                            tr.odd.gradeX
+                              td
+                                input.checkboxes(name='chkSelect[]', id='chkSelect-#{row.id}' type='checkbox', value='#{row.id}')
+                              td.text-left
+                                | #{ row.id }
+                              td.text-left
+                                | #{ row.notificationType.name}
+                              td.text-left
+                                | #{ row.title }
+                              td.text-left
+                                | #{ row.body }
+                              td.text-left
+                                if row.image && row.image!=''
+                                  img(src='#{row.image}' style='width:70px;height:70px')
+                                else
+                                  img(src='/app/category/default.jpg' style='width:70px;height:70px')
+                              td.text-left
+                                span.task-config
+                                  .task-config-btn.btn-group
+                                    //a(href='/backend/notification/view/#{row.id}')
+                                      //i.fa.fa-eye &nbsp;
+                                    a(href='/backend/notification/delete/#{row.id}')
+                                      i.fa.fa-trash-o.red
+                  else
+                    h1 هنوز رکوردی تعریف نگردیده است
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS 
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')  
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS 
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+    
+    script.
+      jQuery(document).ready(function() {
+
+          $('.g2j').each(function(i, el){
+            $(el).html( g2j( $(el).html() ) );
+          });
+
+          var theForm = $("#frmNotification");
+
+          ioBackendPostLogin = io.connect( '/backend_postLogin' );
+
+          // --------------------------------------------------------------------------------
+          // ---/ Handle Delete Global Event --------------------------------------------------------
+          // --------------------------------------------------------------------------------
+          $('#deleteBtn').on('click', function(event){
+            event.preventDefault();
+            var formData = theForm.serializeJSON();
+            if ( formData.chkSelect ) {
+              ioBackendPostLogin.emit('notification.delete', formData);
+            } else {
+              frmShowError({'ALL' : 'حداقل یک رکورد را برای حذف باید انتخاب نمایید.'});
+            }
+          });      
+
+          ioBackendPostLogin.on('notification.delete_res', function(resp){
+            if(resp && resp.result) {
+              window.location = 'notification';
+            } else {
+              if( resp.errorAllObj ) {
+                frmShowError(resp.errorAllObj);
+              }
+            }
+          });      
+
+
+          // --- Handle Delete Global Event /--------------------------------------------------------
+
+          // --------------------------------------------------------------------------------
+          // ---/ Handle NEED FOR USER AUTHENTICATION Global Event --------------------------
+          // --------------------------------------------------------------------------------
+          ioBackendPostLogin.on('need_authentication', function(resp){
+            if(resp && resp.error) {
+              window.location = 'login';
+            }
+          });      
+          // --- Handle NEED FOR USER AUTHENTICATION Global Event /--------------------------
+
+          TableManaged.init();
+          //Tasks-table.initDashboardWidget();
+      });

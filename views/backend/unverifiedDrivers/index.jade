@@ -1,0 +1,207 @@
+﻿extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | رانندگان تایید نشده
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت رانندگان
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') رانندگان تایید نشده
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray.tasks-widget
+                        .portlet-title
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body
+                            .task-content
+                                .table-toolbar
+                                    form#frmUser(name='frmUser', method='POST', action='')
+                                        .row
+                                            .col-md-4
+                                                .form-group
+                                                    select#state.form-control.input-large.text-left(name='situation_id' style="font-size:12px")
+                                                        option(value='null') وضعیت
+                                                        option(value='4') عدم تایید
+                                                        option(value='3') رسیدگی نشده
+                                                        option(value='5') قرار حضوری
+
+                                            .col-md-4
+                                                .form-group
+                                                    input#mobile.form-control.input-large.text-left(name='mobile' placeholder="شماره موبایل" style="font-size:12px")
+
+                                            .col-md-4
+                                                .form-group
+                                                    input.form-control.input-large.text-left(name='special_code' placeholder="کد پیگیری" style="font-size:12px")
+                                        .row
+                                            .col-md-4
+                                                .form-group
+                                                    input.form-control.input-large.text-left(name='fullname' placeholder="نام و نام خانوادگی" style="font-size:12px")
+
+                                            .col-md-4
+                                                .form-group
+                                                    select.form-control.input-large.text-left(name='city_id' style="font-size:12px")
+                                                        option(value='null') شهر
+                                                        each row,index in cityList
+                                                            option(value='#{row.id}') #{row.name}
+
+
+                                            .col-md-4
+                                                .form-group
+                                                    input(type="submit" value="جستجو" class="btn btn-large green " id="saveBtn")
+                                        hr
+                                .question_content(style='margin-top:60px')
+                                    if userList && userList.length
+                                        form#frmUser(name='frmUser', method='POST', action='')
+                                            div(class="modal fade" id="myModal" role="dialog")
+                                                div(class="modal-dialog")
+                                                    div(class="modal-content")
+                                                        div(class="modal-header")
+                                                            button(type="button" class="close" data-dismiss="modal")
+                                                            h4#modalTitle(class="modal-title")
+
+                                                        div(class="modal-body" id="mybody")
+                                                            button#modalBtn(type="button" data-dismiss="modal") بستن
+                                            //div تعداد کل نتایج : #{userList.length}
+                                            table#example.table.table-bordered.table-hover
+                                                thead
+                                                    tr
+                                                        th.text-left ردیف
+                                                        th.text-left نام و نام خانوادگی
+                                                        th.text-left کد معرف
+                                                        th.text-left خودرو
+                                                        th.text-left شهر
+                                                        th.text-left موبایل
+                                                        th.text-left کد پیگیری
+                                                        th.text-left تاریخ مراجعه
+                                                        th.text-left وضعیت
+                                                        th.text-left
+
+
+                                                tbody
+                                                    each row, index in userList
+                                                        tr.odd.gradeX
+                                                            td.text-left #{row.id}
+                                                            td.text-left #{row.serviceProviderProfile.first_name} #{row.serviceProviderProfile.last_name}
+                                                            td.text-left #{row.serviceProviderProfile.representer_code||"-"}
+                                                            td.text-left
+                                                                if row.serviceProviderProfile.serviceProviderSpecialInfo
+                                                                    - var value= row.serviceProviderProfile.serviceProviderSpecialInfo.vehicleBrand || {name:"نا مشخص"}
+                                                                    | #{value.name}
+                                                                else
+                                                                    | نا مشخص
+                                                            td.text-left
+                                                                - var value= row.serviceProviderProfile.city || {name:"نا مشخص"}
+                                                                | #{value.name}
+                                                            td.text-left
+                                                                | #{row.mobile}
+                                                            td.text-left
+                                                                | #{row.serviceProviderProfile.special_code}
+                                                            td.text-left
+                                                                | #{row.serviceProviderProfile.visit_date}
+                                                            td.text-left
+                                                                if row.userSituation.id == 3
+                                                                    | در دست بررسی
+                                                                else if row.userSituation.id == 4
+                                                                    | عدم تایید
+                                                                else
+                                                                    | قرار حضوری
+                                                            td.text-left
+                                                                a.menu-sub(href='/backend/unverified_drivers/profile/#{row.id}')
+                                                                    | مشاهده درخواست
+
+                                    else
+                                        h1 هنوز رکوردی تعریف نگردیده است
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS 
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS 
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+
+    script.
+        jQuery(document).ready(function () {
+
+            var theForm = $("#frmUser");
+            $('#saveBtn').on('click', function (event) {
+                Pace.restart()
+                event.preventDefault();
+                $("#saveBtn").prop('disabled', true);
+                var formData = theForm.serializeJSON();
+                $.post('/backend/search/unverified_drivers/1', formData, function (data) {
+                    $('.question_content').html(data);
+                })
+                $(document).ajaxStop(function () {
+                    $("#saveBtn").prop('disabled', false);
+                });
+
+            });
+
+            $("a:not(.menu-sub,.ah-pro)").on('click', function (ev) {
+                Pace.restart()
+                $("#saveBtn").prop('disabled', true);
+                var id = $(this).attr('id')
+                var formData = theForm.serializeJSON();
+                $.post('/backend/search/unverified_drivers/' + id, formData, function (data) {
+                    console.log("data", data)
+                    $("#saveBtn").prop('disabled', false);
+                    $('.question_content').html(data);
+                })
+            })
+
+            $('#example').dataTable({
+                paginate: true,
+                "pagingType": "full_numbers",
+                "language": {
+                    "paginate": {
+                        "first": "<span class='fa fa-angle-double-right'></span>",
+                        "last": "<span class='fa fa-angle-double-left'></span>",
+                        "previous": "<span class='fa fa-angle-right'></span>",
+                        "next": "<span class='fa fa-angle-left'></span>"
+                    }
+                },
+                "order": [0, "desc"],
+                "info": false,
+                "bFilter": false
+            });
+        });
+

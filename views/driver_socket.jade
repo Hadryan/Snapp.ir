@@ -1,0 +1,327 @@
+html
+    head
+        meta(charset="utf-8")
+    body
+        p
+            | test socket
+        div#updateSocketDiv
+            input#UserId(type='text' placeholder='UserId' value="12")
+            input#DeviceId(type='text' placeholder='DeviceId' value="123")
+            input#SituationId(type='text' placeholder='SituationId' value="4")
+            input#updateSocket(type='button' value='update socket')
+            input#currentPosition(type='button' value='current position')
+            br
+            br
+            br
+        div#firstConnectDiv
+            input#Lat(type='text' placeholder='Lat' value="35.71565")
+            input#Long(type='text' placeholder='Long' value="51.42570")
+            input#firstConnect(type='button' value='first connect')
+            input#onlineDriverId(type='text' placeholder='onlineDriverId' readonly='true')
+            br
+            br
+            br
+        div#offlineDiv(style="display:none;")
+            input#offline(type='button' value='offline')
+            br
+            br
+            br
+        div#acceptTripDiv(style="display:none;")
+            input#DriverPlaceLat(type='text' placeholder='DriverPlaceLat' value='35.71565')
+            input#DriverPlaceLong(type='text' placeholder='DriverPlaceLong' value='51.42570')
+            input#DriverPlaceLabel(type='text' placeholder='DriverPlaceLabel' value="هفت تیر")
+            input#TripId(type='text' placeholder='TripId' readonly='true')
+            input#acceptTrip(type='button' value='accept')
+            br
+            br
+            br
+        div#arrivalToPassengerDiv(style="display:none;")
+            input#arrivalToPassenger(type='button' value='arrival to passenger')
+            br
+            br
+            br
+        div#startTripDiv(style="display:none;")
+            input#startTrip(type='button' value='start trip')
+            br
+            br
+            br
+        div#endTripDiv(style="display:none;")
+            input#TripTime(type='text' placeholder='TripTime' value='15')
+            input#TripDistance(type='text' placeholder='TripDistance' value='25')
+            input#endTrip(type='button' value='end trip')
+            br
+            br
+            br
+        div#confirmPaymentDiv(style="display:none;")
+            input#paymentAmount(type='text' placeholder='paymentAmount' readonly='true')
+            input#confirmPayment(type='button' value='confirm payment')
+            br
+            br
+            br
+    block jsHeader
+    script(src='http://#{appConfig.host.domain}:#{appConfig.host.port}/socket.io/socket.io.js')
+    script(src="/metronic_rtl/assets/global/plugins/jquery-1.11.0.min.js", type="text/javascript")
+    script.
+        var ioDriverApp = io.connect( '/backend_driverApp' );
+        var ioPassengerApp = io.connect( '/backend_passengerApp' );
+        var lat,long;
+        jQuery(document).ready(function () {
+            ioDriverApp.on('connect',function(socket){
+                /*ioDriverApp.emit('refreshSocket', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val()
+                });*/
+            });
+            ioDriverApp.on('ping', function (data) {
+                console.log("ping received!");
+                ioDriverApp.emit('pong', {beat: 1});
+                ioDriverApp.emit('myPong', {beat: 1});
+            });
+            $("#firstConnect").click(function (event) {
+                ioDriverApp.emit('firstConnect', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val(),
+                    Lat: $("#Lat").val(),
+                    Long: $("#Long").val(),
+                });
+            });
+            ioDriverApp.on("firstConnectRes",function(params){
+                console.log('firstConnectRes',params);
+                if(params.Result){
+                    $("#firstConnectDiv").hide();
+                    lat = $("#Lat").val();
+                    long = $("#Long").val();
+                    $("#onlineDriverId").val(params.Data[0].id);
+                    setTimeout(function(){sendNewPosition()},1000);
+                }
+            });
+            ioDriverApp.on("refreshSocketRes",function(params){
+                $("#onlineDriverId").val(params.Data[0].id);
+                console.log('refreshSocketRes',params);
+            });
+
+            $("#updateSocket").click(function (event) {
+                ioDriverApp.emit('updateSocket', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val(),
+                    SituationId: $("#SituationId").val()
+                });
+            });
+
+            $("#currentPosition").click(function (event) {
+                ioDriverApp.emit('currentPosition', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val(),
+                    OnlineDriverId: $("#onlineDriverId").val(),
+                    Lat: $("#DriverPlaceLat").val(),
+                    Long: $("#DriverPlaceLong").val(),
+                    Direction: 10,
+                    TripId: $("#TripId").val(),
+                });
+            });
+            ioDriverApp.on("updateSocketRes",function(params){
+                console.log('updateSocketRes',params);
+                if(params.Result){
+                    $("#onlineDriverId").val(params.Data[0].id);
+                }
+            });
+
+            ioDriverApp.on("currentPositionRes",function(params){
+                $("#offlineDiv").show();
+                console.log('currentPositionRes',params);
+            });
+
+            $("#offline").click(function (event) {
+                ioDriverApp.emit('offline', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val(),
+                    OnlineDriverId: $("#onlineDriverId").val(),
+                });
+            });
+            ioDriverApp.on("offlineRes", function (params) {
+                $("#offlineDiv").hide();
+                console.log('offlineRes', params);
+            });
+
+            //ioDriverApp.on("disconnectRes", function (params) {
+                //console.log('params', params);
+            //})
+
+            ioDriverApp.on("newTrip", function (params) {
+                alert("new trip!");
+                $("#TripId").val(params.Data[0].TripId);
+                console.log('newTrip', params);
+                $('#acceptTripDiv').show();
+                //setTimeout(function() {
+                    //rejectTrip();
+                //},15000);
+            });
+
+            $("#acceptTrip").click(function (event) {
+                ioDriverApp.emit('acceptTrip', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val(),
+                    TripId: $("#TripId").val(),
+                    DriverPlaceLat: $("#DriverPlaceLat").val(),
+                    DriverPlaceLong: $("#DriverPlaceLong").val(),
+                    DriverPlaceLabel: $("#DriverPlaceLabel").val(),
+                });
+            });
+            ioDriverApp.on("acceptTripRes", function (params) {
+                if(params.Result) {
+                    console.log('acceptTripRes', params);
+                    $('#offlineDiv').hide();
+                    $('#acceptTripDiv').hide();
+                    $("#arrivalToPassengerDiv").show();
+                } else {
+                    if(params.ErrorCode==23){
+                        $('#offlineDiv').hide();
+                        $('#acceptTripDiv').hide();
+                        alert("trip Accepted Or Canceled Before");
+                    }
+                    if(params.ErrorCode==44){
+                        $('#offlineDiv').hide();
+                        $('#acceptTripDiv').hide();
+                        alert("Accepting aTrip Out Of Time");
+                    }
+                }
+            });
+
+            ioDriverApp.on("passengerPayment", function (params) {
+                console.log('passengerPayment', params);
+                alert("passenger payment received.");
+            });
+
+            $("#arrivalToPassenger").click(function (event) {
+                $("#arrivalToPassengerDiv").hide();
+                ioDriverApp.emit('arrivalToPassenger', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val(),
+                    TripId: $("#TripId").val(),
+                });
+            });
+            ioDriverApp.on("arrivalToPassengerRes", function (params) {
+                console.log('arrivalToPassengerRes', params);
+                $("#startTripDiv").show();
+            });
+
+            ioDriverApp.on("passengerArrivalTime", function (params) {
+                $("#startTripDiv").show();
+                alert("Passenger Determine Arrival Time");
+                console.log('passengerArrivalTime', params);
+            });
+
+            $("#startTrip").click(function (event) {
+                ioDriverApp.emit('startTrip', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val(),
+                    TripId: $("#TripId").val(),
+                });
+            });
+            ioDriverApp.on("startTripRes", function (params) {
+                alert("Trip Started!");
+                $("#startTripDiv").hide();
+                $("#endTripDiv").show();
+                console.log('startTripRes', params);
+            });
+
+            ioDriverApp.on("editDestination", function (params) {
+                alert("Destination Edited!");
+                console.log('editDestination', params);
+            });
+
+            ioDriverApp.on("addDestination", function (params) {
+                alert("New Destination Added!");
+                console.log('addDestination', params);
+            });
+
+            $("#endTrip").click(function (event) {
+                ioDriverApp.emit('endTrip', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val(),
+                    TripId: $("#TripId").val(),
+                    TripTime: $("#TripTime").val(),
+                    TripDistance: $("#TripDistance").val(),
+                });
+            });
+            ioDriverApp.on("endTripRes", function (params) {
+                console.log('endTripRes', params);
+                if(params.Result) {
+                    if(params.Data[0].finish) {
+                        alert("Trip Ended!");
+                        $("#endTripDiv").hide();
+                        $("#paymentAmount").val(params.Data[0].paymentAmount);
+                        $("#confirmPaymentDiv").show();
+                    } else {
+                        alert("next destination started!");
+                    }
+                }
+            });
+
+            $("#confirmPayment").click(function (event) {
+                ioDriverApp.emit('confirmPayment', {
+                    UserId: $("#UserId").val(),
+                    DeviceId: $("#DeviceId").val(),
+                    TripId: $("#TripId").val(),
+                    PaymentAmount: $("#paymentAmount").val(),
+                });
+            });
+            ioDriverApp.on("confirmPaymentRes", function (params) {
+                console.log('confirmPaymentRes', params);
+                if(params.Result) {
+                    alert("Payment Confirmed!");
+                    $("#confirmPaymentDiv").hide();
+                }
+            });
+            ioDriverApp.on("userDisabled", function (params) {
+                console.log('userDisabled', params);
+                alert("userDisabled");
+            });
+
+
+            ioDriverApp.on("tripRejectedRes", function (params) {
+                var rrprompt = prompt('Reject Reason?');
+                $.post(
+                    "/set_trip_rejection_reason",
+                    {
+                        UserId: $("#UserId").val(),
+                        DeviceId: $("#DeviceId").val(),
+                        TripId: $("#TripId").val(),
+                        ReasonId: rrprompt
+                    },
+                    function (data) {
+                        if (data.Result)
+                            alert("reject Reason Saved.");
+                    }
+                );
+            });
+        });
+        function rejectTrip(){
+            $('#acceptTripDiv').hide();
+            alert("trip rejected!");
+            ioDriverApp.emit('tripRejected', {
+                UserId: $("#UserId").val(),
+                DeviceId: $("#DeviceId").val(),
+                TripId: $("#TripId").val(),
+            });
+        }
+
+        function setNewPosition(pos) {
+            return parseFloat(pos)+0.00001;
+        }
+
+        function sendNewPosition() {
+            lat = setNewPosition(lat);
+            long = setNewPosition(long);
+            ioDriverApp.emit('currentPosition', {
+                UserId: $("#UserId").val(),
+                DeviceId: $("#DeviceId").val(),
+                OnlineDriverId: $("#onlineDriverId").val(),
+                Lat: lat,
+                Long: long,
+                Direction: 120,
+            });
+            // setTimeout(function(){sendNewPosition()},3000);
+        }
+
+

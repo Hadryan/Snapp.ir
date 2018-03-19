@@ -1,0 +1,99 @@
+﻿extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | رانندگان تایید شده
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت رانندگان
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') رانندگان تایید شده
+                        li
+                            a(href='javascript:;') مشاهده راننده به صورت آنلاین
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray.tasks-widget
+                        .portlet-title
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body
+                            .task-content
+                                input(type="hidden" id="id" value="#{specifications.driverId}")
+                                input(type="hidden" id="lat" value="#{specifications.lat}")
+                                input(type="hidden" id="long" value="#{specifications.long}")
+                                <div id="map" style="width:100%;height:500px"></div>
+
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+    script(async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDTajCLp_cm-JmpM59jgB8rYprXBIi4yvA&callback=initMap")
+    script.
+        var lat = parseFloat($("#lat").val());
+        var long = parseFloat($("#long").val());
+        var map;
+        var marker;
+        function initMap() {
+            var uluru = {lat: lat, lng: long};
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 15,
+                center: uluru
+            });
+            marker = new google.maps.Marker({
+                position: uluru,
+                map: map
+            });
+        }
+        $(document).ready(function () {
+            setInterval(function () {
+                $.post(
+                    '/backend/verified_drivers/get_driver_position',
+                    {id: $("#id").val()},
+                    function (data) {
+                        if(data.Result) {
+                            var uluru = {lat: data.data.lat, lng: data.data.long};
+                            var center = new google.maps.LatLng(data.data.lat, data.data.long);
+                            map.panTo(center);
+                            marker.setPosition(uluru);
+                        } else {
+                            alert("راننده آنلاین نمی باشد.");
+                        }
+                    }
+                );
+            }, 10000);
+        });

@@ -1,0 +1,25 @@
+input#sortField(type="hidden" name="sortField" value="#{posts.sortField ? posts.sortField : ''}")
+input#sortCondition(type="hidden" name="sortCondition" value="#{posts.sortCondition ? posts.sortCondition : ''}")
+input#searchFlag(type="hidden" name="searchFlag" value="0")
+input#page(type="hidden" name="page" value="#{posts.page ? posts.page : 1}")
+input#pageSize(type="hidden" name="pageSize" value="#{posts.pageSize ? posts.pageSize : 10}")
+.row.has-top-margin
+   .col-lg-3.col-md-4.col-sm-4.col-xs-6
+      label(for="pageSize") تعداد نمایش در هر صفحه
+      select.form-control#pageSizeSelect(name="pageSizeSelect" onchange="showNewPageSize(this.value)")
+         if(posts.pageSize == 10)
+            option(value="10" selected="selected") 10
+         else
+            option(value="10") 10
+         if(posts.pageSize == 25)
+            option(value="25" selected="selected") 25
+         else
+            option(value="25") 25
+         if(posts.pageSize == 50)
+            option(value="50" selected="selected") 50
+         else
+            option(value="50") 50
+         if(posts.pageSize == 100)
+            option(value="100" selected="selected") 100
+         else
+            option(value="100") 100

@@ -1,0 +1,169 @@
+extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | فراوانی خودروها
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت رانندگان
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') رانندگان تایید شده
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/verified_drivers/cars') فراوانی خودروها
+
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray.tasks-widget
+                        .portlet-title
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body
+                            .task-content
+                                .table-toolbar
+                                    form#frmUser(name='frmUser', method='POST', action='')
+                                        .form-body
+                                            .row
+                                                .col-md-3
+                                                    .form-group
+                                                        select.form-control.text-left(name='city_id' style="font-size:12px")
+                                                            option(value='null') شهر
+                                                            each row,index in cityList
+                                                                option(value='#{row.id}') #{row.name}
+                                                .col-md-3
+                                                    .form-group
+                                                        select#brand.form-control.text-left(name='brand_id' style="font-size:12px")
+                                                            option(value='null') برند
+                                                            each row,index in brandList
+                                                                option(value='#{row.id}') #{row.name}
+                                                .col-md-3
+                                                    .form-group
+                                                        select#model.form-control.text-left(name='model_id' style="font-size:12px")
+                                                            option(value='null') مدل
+                                            .row
+                                                .col-md-3
+                                                    .form-group
+                                                        input(type="button" value="جستجو" class="btn btn-large green " id="saveBtn")
+                                        hr
+                                .question_content(style='margin-top:60px')
+                                    if data && data.length
+                                        form#frmUser(name='frmUser', method='POST', action='')
+                                            table#example.table.table-bordered.table-hover
+                                                thead
+                                                    tr
+                                                        th.text-left
+                                                            | ردیف
+                                                        th.text-left
+                                                            | برند خودرو
+                                                        th.text-left
+                                                            | مدل خودرو
+                                                        th.text-left
+                                                            | شهر
+                                                        th.text-left
+                                                            | تعداد موجود
+
+
+
+
+
+                                                tbody
+                                                    each row, index in data
+                                                        tr.odd.gradeX
+                                                            td.text-left
+                                                                | #{row.id}
+                                                            td.text-left
+                                                                | #{row.brand_name}
+                                                            td.text-left
+                                                                | #{row.model_name}
+                                                            td.text-left
+                                                                | #{row.city_name}
+                                                            td.text-left
+                                                                | #{row.total_number}
+
+                                    else
+                                        h1 هنوز رکوردی تعریف نگردیده است
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+
+    script.
+        jQuery(document).ready(function () {
+            $('.g2j').each(function (i, el) {
+                $(el).html(g2j($(el).html()));
+            });
+            $("#brand").on('change', function () {
+                var id = $(this).val();
+                if (id != 'null') {
+                    $.post('/backend/verified_drivers/get_car_models', {id: id}, function (data) {
+                        var toAppend = '<option value="null"> مدل</option>'
+                        for (var i = 0; i < data.length; i++) {
+                            toAppend += '<option value=' + '"' + data[i].id + '"' + '>' + data[i].name + '</option>';
+                        }
+                        $('#model').empty();
+                        $('#model').append(toAppend);
+                    })
+                } else {
+                    $('#model').empty();
+                }
+            })
+            $('#saveBtn').on('click', function (event) {
+                event.preventDefault();
+                $("#saveBtn").prop('disabled', true);
+                var theForm = $("#frmUser");
+                var formData = theForm.serializeJSON();
+                $.post('/backend/verified_drivers/search/cars', formData, function (data) {
+                    $('.question_content').html(data);
+                })
+                $(document).ajaxStop(function () {
+                    $("#saveBtn").prop('disabled', false);
+                });
+            });
+            $('#example').dataTable({
+                paginate: true,
+                "order": [1, "desc"],
+                "info": false,
+                "bFilter": false,
+                "bSort": false
+            });
+        });
+

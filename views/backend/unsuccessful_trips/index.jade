@@ -1,0 +1,181 @@
+﻿extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | مدیریت سفرها
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت سفرها
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray.tasks-widget
+                        .portlet-title
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body
+                            .task-content
+                                form#searchForm(method="post" action="")
+                                    include ../pagingHeader
+                                    a.btn.btn-default.green.pull-right(href="/backend/unsuccessfull_excel" style="margin-top: -50px;") خروجی اکسل
+                                    .row.has-top-margin
+                                        .col-lg-12.col-md-12.col-sm-12.col-xs-12
+                                            table.table.table-hover
+                                                thead
+                                                    tr
+                                                        th.text-centerth.text-center.sortable.sortable-id(onclick="sortData('id','ASC');") شناسه
+                                                        th.text-centerth.text-center.sortable.sortable-request_time(onclick="sortData('request_time','ASC');") تاریخ
+                                                        th.text-centerth.text-center.sortable.sortable-request_time(onclick="sortData('request_time','ASC');") ساعت
+                                                        th.text-centerth.text-center.sortable.sortable-passenger_user_id(onclick="sortData('passenger_user_id','ASC');") نام مسافر
+                                                        th.text-centerth.text-center.sortable.sortable-passenger_user_id(onclick="sortData('passenger_user_id','ASC');") کد مسافر
+                                                        th.text-centerth.text-center.sortable.sortable-trip_code(onclick="sortData('trip_code','ASC');") کد سفر
+                                                        th.text-centerth.text-center.sortable.sortable-driver_user_id(onclick="sortData('driver_user_id','ASC');") نام راننده
+                                                        th.text-centerth.text-center.sortable.sortable-driver_user_id(onclick="sortData('driver_user_id','ASC');") کد راننده
+                                                        th.text-centerth.text-center.sortable.sortable-driver_user_id(onclick="sortData('driver_user_id','ASC');") کد معرف
+                                                        th.text-centerth.text-center.sortable.sortable-net_price(onclick="sortData('net_price','ASC');") مبلغ سفر
+                                                        th.text-centerth.text-center مکان سفر
+                                                        th.text-centerth.text-center.sortable.sortable-description(onclick="sortData('description','ASC');") علت عدم انجام سفر
+                                                tbody
+                                                    each row,index in data
+                                                        tr
+                                                            td.text-center #{row.id}
+                                                            td.text-center
+                                                                if(row.request_time)
+                                                                    span.g2j #{row.request_time}
+                                                                else
+                                                                    | -
+                                                            td.text-center
+                                                                if(row.request_time)
+                                                                    span.g2Time #{row.request_time}
+                                                                else
+                                                                    | -
+                                                            td.text-center #{row.passengerUser?row.passengerUser.customerProfile?row.passengerUser.customerProfile.full_name:"-":"-"}
+                                                            td.text-center #{row.passenger_user_id||"-"}
+                                                            td.text-center #{row.trip_code||"-"}
+                                                            td.text-center #{row.driverUser?row.driverUser.serviceProviderProfile?row.driverUser.serviceProviderProfile.first_name+" "+row.driverUser.serviceProviderProfile.last_name:"-":"-"}
+                                                            td.text-center #{row.driver_user_id||"-"}
+                                                            td.text-center #{row.driverUser?row.driverUser.serviceProviderProfile?row.driverUser.serviceProviderProfile.representer_code:"-":"-"}
+                                                            td.text-center #{row.net_price||"-"}
+                                                            td.text-center #{(row.tripDestinations && row.tripDestinations.length)?row.tripDestinations[0].destination_label:"-"}
+                                                            td.text-center #{row.description||"-"}
+                                    include ../pagingFooter
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS 
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+
+    script.
+        jQuery(document).ready(function () {
+            $('.g2j').each(function (i, el) {
+                $(el).html(g2j($(el).html()));
+            });
+            $('.g2j2').each(function (i, el) {
+                $(el).html(g2j2($(el).html()));
+            });
+            $('.g2Time').each(function (i, el) {
+                $(el).html(g2Time($(el).html()));
+            });
+            $('.itIsDatePicker').persianDatepicker({
+                formatDate: "YYYY/MM/DD",
+                fontSize: 12,
+                selectedBefore: false
+            });
+            var theForm = $("#frmUser");
+            $('#saveBtn').on('click', function (event) {
+                Pace.restart()
+                event.preventDefault();
+                $("#saveBtn").prop('disabled', true);
+                var formData = theForm.serializeJSON();
+                $.post('/backend/search/trips/1', formData, function (data) {
+                    $('.question_content').html(data);
+                })
+                $(document).ajaxStop(function () {
+                    $("#saveBtn").prop('disabled', false);
+                });
+            });
+            $("a.paging").on('click', function (ev) {
+                Pace.restart()
+                $("#saveBtn").prop('disabled', true);
+                var id = $(this).attr('id')
+                var formData = theForm.serializeJSON();
+                $.post('/backend/search/trips/' + id, formData, function (data) {
+                    console.log("data", data)
+                    $("#saveBtn").prop('disabled', false);
+                    $('.question_content').html(data);
+                })
+            });
+            $("#excel").click(function (e) {
+                e.preventDefault();
+                notyfy({
+                    force: true,
+                    timeout: true,
+                    text: "در حال بارگذاری فایل",
+                    type: 'success',
+                    layout: 'top',
+                    closeWith: ['click']
+                });
+                var theForm = $("#frmUser");
+                var formData = theForm.serializeJSON();
+                $.post('/backend/trips/excel', formData, function (data) {
+                    $("#saveBtn").prop('disabled', false);
+                    window.location = data
+                    $.notyfy.closeAll()
+                })
+            });
+            $('#example').dataTable({
+                paginate: true,
+                "pagingType": "full_numbers",
+                "language": {
+                    "paginate": {
+                        "first": "<span class='fa fa-angle-double-right'></span>",
+                        "last": "<span class='fa fa-angle-double-left'></span>",
+                        "previous": "<span class='fa fa-angle-right'></span>",
+                        "next": "<span class='fa fa-angle-left'></span>"
+                    }
+                },
+                "order": [0, "desc"],
+                "info": false,
+                bFilter: false
+            });
+        });
+

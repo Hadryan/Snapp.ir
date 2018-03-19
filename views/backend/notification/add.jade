@@ -1,0 +1,168 @@
+extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | اعلان جدید
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/notification') اعلان ها
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/notification/add') اعلان جدید
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray
+                        .portlet-title
+                            .caption
+                                i
+                                    | اعلان جدید
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmNotification.horizontal-form(name='frmNotification', method='POST', action='/backend/notification/add', enctype='multipart/form-data')
+                                .form-body
+                                    .row
+                                        .col-md-6
+                                            .form-group
+                                                label.control-label
+                                                    span
+                                                    | نوع اعلان
+                                                select#type.input-large(name="notification_type_id" style="font-size:12px")
+                                                    option(value='1') همگانی
+                                                    option(value='3') همه ی مسافران
+                                                    option(value='2') همه ی رانندگان
+                                    .row
+                                        .col-md-6
+                                            .form-group
+
+                                                label.control-label
+                                                    span
+                                                    | تصویر
+
+                                                .fileinput.fileinput-new(data-provides='fileinput')
+                                                    .fileinput-new.thumbnail(style='width: 100px ; height: 100px;')
+                                                        img(src='/app/category/default.jpg')
+
+                                                    .fileinput-preview.fileinput-exists.thumbnail(style='max-width: 100px ; max-height: 100px;')
+                                                    div
+                                                        span.btn.default.btn-file
+                                                            span.fileinput-new انتخاب
+                                                            span.fileinput-exists تغییر
+                                                            input#photo(type='file' name='pic' )
+                                                        a.btn.red.fileinput-exists(href='javascript:;', data-dismiss='fileinput') حذف
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+                                                label.control-label
+                                                    span
+                                                    | عنوان
+                                                input#title.text-left.form-control(type='text' name='title' )
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+                                                label.control-label
+                                                    span
+                                                    | متن
+                                                textarea#description.text-left.form-control(rows='6' name='description'  )
+
+
+
+                                // end form body
+                                .form-actions
+                                    .row
+                                        .col-md-12
+                                            button#saveBtn.btn.green(type='submit')
+                                                i.fa.fa-check
+                                                | &nbsp; ذخیره
+                                        &nbsp;
+    a.btn.default(href='/backend/notification')
+        i.fa.fa-times
+        | &nbsp; انصراف
+
+
+
+// END CONTENT
+block cssHeader
+    link(href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+
+
+
+
+
+
+block jsHeader
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js")
+
+
+
+
+
+
+    // BEGIN PAGE LEVEL SCRIPTS    
+    script.
+        jQuery(document).ready(function () {
+            $("#user").select2();
+            $("#choose_user").hide()
+            $("#type").on('change', function (event) {
+                event.preventDefault()
+                if ($(this).val() == 'All') {
+                    $("#choose_user").hide()
+                } else {
+                    $("#choose_user").show()
+                }
+            })
+            $('.itIsDatePicker').persianDatepicker({
+                formatDate: "YYYY/MM/DD",
+                fontSize: 12,
+                selectedBefore: false
+            });
+
+            var theForm = $("#frmNotification");
+
+            ioBackendPostLogin = io.connect('/backend_postLogin');
+
+            // --- Handle Add Global Event /--------------------------------------------------------
+            // --------------------------------------------------------------------------------
+            // ---/ Handle NEED FOR USER AUTHENTICATION Global Event --------------------------
+            // --------------------------------------------------------------------------------
+            ioBackendPostLogin.on('need_authentication', function (resp) {
+                if (resp && resp.error) {
+                    window.location = 'login';
+                }
+            });
+            // --- Handle NEED FOR USER AUTHENTICATION Global Event /--------------------------
+
+        });

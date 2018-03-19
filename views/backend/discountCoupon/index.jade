@@ -1,0 +1,137 @@
+﻿extends ../layout
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | کدهای تخفیف
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') کدهای تخفیف
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray.tasks-widget
+                        .portlet-title
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body
+                            .task-content
+                                .table-toolbar
+                                    a.btn.btn-default.green(href="/backend/discount_coupon/create")
+                                        span.fa.fa-plus.fa-lg
+                                        | &nbsp;افزودن
+                                .question_content(style='margin-top:60px')
+                                    if data && data.length
+                                        form#frmUser(name='frmUser', method='POST', action='')
+                                            table#example.table.table-bordered.table-hover
+                                                thead
+                                                    tr
+                                                        th.text-left کد
+                                                        th.text-left درصد
+                                                        th.text-left سقف
+                                                        th.text-left تاریخ شروع
+                                                        th.text-left تاریخ پایان
+                                                        th.text-left شهر
+                                                        th.text-left عملیات
+                                                tbody
+                                                    each row, index in data
+                                                        tr.odd.gradeX
+                                                            td.text-left #{row.coupon || "-"}
+                                                            td.text-left #{row.discount_percent || "-"}
+                                                            td.text-left #{row.discount_max_amount || "-"}
+                                                            td.text-left
+                                                                if(row.start_date)
+                                                                    span.g2j #{row.start_date}
+                                                                else
+                                                                    | -
+                                                            td.text-left
+                                                                if(row.end_date)
+                                                                    span.g2j #{row.end_date}
+                                                                else
+                                                                    | -
+                                                            td.text-left #{row.city?row.city.name:""}
+                                                            td.text-left
+                                                                a(href='javascript:;' onclick="deleteCode(#{row.id})") حذف
+                                                                    //span.fa.fa-trash.fa-lg.has_tooltip(title="حذف")
+                                    else
+                                        h1 هنوز رکوردی تعریف نگردیده است
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS 
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+
+    script.
+        jQuery(document).ready(function () {
+            $(".has_tooltip").tooltip();
+            $('.g2j').each(function (i, el) {
+                $(el).html(g2j($(el).html()));
+            });
+            $('.g2j2').each(function (i, el) {
+                $(el).html(g2j2($(el).html()));
+            });
+            $('.itIsDatePicker').persianDatepicker({
+                formatDate: "YYYY/MM/DD",
+                fontSize: 12,
+                selectedBefore: false
+            });
+            $('#example').dataTable({
+                paginate: true,
+                "pagingType": "full_numbers",
+                "language": {
+                    "paginate": {
+                        "first": "<span class='fa fa-angle-double-right'></span>",
+                        "last": "<span class='fa fa-angle-double-left'></span>",
+                        "previous": "<span class='fa fa-angle-right'></span>",
+                        "next": "<span class='fa fa-angle-left'></span>"
+                    }
+                },
+                "order": [0, "desc"],
+                "info": false,
+                bFilter: false
+            });
+        });
+        function deleteCode(id) {
+            if(confirm('آیا مطمئنید؟')) {
+                $.post(
+                    '/backend/discount_coupon/delete',
+                    {id: id},
+                    function (data) {
+                        window.location.reload();
+                    }
+                );
+            }
+        }
+

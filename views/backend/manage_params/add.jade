@@ -1,0 +1,84 @@
+extends ../layout
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | پارامتر مدیریتی جدید
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') تنظیم پارامترهای مدیریتی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') پارامتر مدیریتی جدید
+
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray
+                        .portlet-title
+                            .caption
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmUser.horizontal-form(name='frmUser', method='POST', action='/backend/manage_params/add')
+                                .form-body
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label نام تغییر
+                                                br
+                                                input.form-control.text-left(name='title', type='text', data-req="true",value="",style="font-size:18px" )
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label نوع تغییر
+                                                br
+                                                select.form-control.text-left(name='parameter_type_id')
+                                                 option(value='1') افزاینده
+                                                 option(value='2') کاهنده
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label مقدار تغییر (درصد)
+                                                br
+                                                input.form-control.text-left(name='change_amount', type='text', data-req="true",value="",style="font-size:18px" )
+
+                                    .row
+                                            .col-md-6
+                                                input.btn.green(type='submit' value='ذخیره')
+
+// END CONTENT
+block cssHeader
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+
+    // END PAGE LEVEL PLUGINS
+    // BEGIN PAGE LEVEL SCRIPTS
+
+    script.
+        jQuery(document).ready(function() {
+        });

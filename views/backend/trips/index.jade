@@ -1,0 +1,254 @@
+﻿extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | مدیریت سفرها
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت سفرها
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray.tasks-widget
+                        .portlet-title
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body
+                            .task-content
+                                .table-toolbar
+                                    form#frmUser(name='frmUser', method='POST', action='')
+                                        .row
+                                            .col-md-6
+                                                .form-group
+                                                    label تعداد کل سفرهای انجام شده تا کنون
+                                                    input.form-control.text-left(type="text" value="#{total}" disabled)
+                                            .col-md-6
+                                                .form-group
+                                                    label تعداد کل سفرهای کنسل شده
+                                                    input.form-control.txt-left(type="text" value="#{totalCanceled}" disabled)
+                                        hr
+                                        .row
+                                            .col-md-4
+                                                .form-group
+                                                    input#mobile.form-control.input-large.text-left(name='driver_name' placeholder="نام و نام خانوادگی راننده" style="font-size:12px")
+                                            .col-md-4
+                                                .form-group
+                                                    input.form-control.input-large.text-left(name='passenger_name' placeholder="نام و نام خانوادگی مسافر" style="font-size:12px")
+                                            .col-md-4
+                                                .form-group
+                                                    select.form-control.input-large.text-left(name='start_time' style="font-size:12px")
+                                                        option(value='null') از ساعت
+                                                        -for(var i=1;i<25;i++){
+                                                        option(value='#{i}') #{i}
+                                                        -}
+                                            .col-md-4
+                                                .form-group
+                                                    select.form-control.input-large.text-left(name='end_time' style="font-size:12px")
+                                                        option(value='null') تا ساعت
+                                                        -for(var i=1;i<25;i++){
+                                                        option(value='#{i}') #{i}
+                                                        -}
+                                            .col-md-4
+                                                .form-group
+                                                    input.form-control.input-large.text-left.itIsDatePicker(name='start_date' placeholder="از تاریخ" style="font-size:12px")
+                                            .col-md-4
+                                                .form-group
+                                                    input.form-control.input-large.text-left.itIsDatePicker(name='end_date' placeholder="تا تاریخ" style="font-size:12px")
+                                            .col-md-4
+                                                .form-group
+                                                    select.form-control.input-large.text-left(name='payment_id' style="font-size:12px")
+                                                        option(value='null') نوع پرداخت
+                                                        option(value='1') پرداخت نقدی
+                                                        option(value='2') پرداخت آنلاین
+                                                        option(value='3') انتقال وجه درون سیستمی
+                                            .col-md-4
+                                                .form-group
+                                                    input.form-control.input-large.text-left(name='trip_code' placeholder="کد سفر" style="font-size:12px")
+
+                                        .row
+                                            .col-md-2
+                                                .form-group
+                                                    input(type="submit" value="جستجو" class="btn btn-large green " id="saveBtn")
+                                            .col-md-2
+                                                .form-group
+                                                    input(type="submit" value="خروجی اکسل" class="btn btn-large green " id="excel")
+                                            .col-md-2
+                                                .form-group
+                                                    a(href='/backend/trips/sources_map' type="submit"  class="btn btn-large blue-chambray " ) نقشه فراوانی مسافران بر اساس مبدا سفر
+
+                                .question_content(style='margin-top:60px')
+                                    if data && data.length
+                                        form#frmUser(name='frmUser', method='POST', action='')
+                                            //div تعداد کل نتایج : #{allDataCount}
+                                            table#example.table.table-bordered.table-hover
+                                                thead
+                                                    tr
+                                                        th.text-left ردیف
+                                                        th.text-left تاریخ
+                                                        th.text-left ساعت شروع
+                                                        th.text-left راننده
+                                                        th.text-left کد معرف راننده
+                                                        th.text-left مسافر
+                                                        th.text-left هزینه سفر
+                                                        th.text-left نوع پرداخت
+                                                        th.text-left عملیات
+                                                tbody
+                                                    each row, index in data
+                                                        tr.odd.gradeX
+                                                            td.text-left #{index+1}
+                                                            td.text-left
+                                                                if row.start_time
+                                                                    span.mg2j #{row.start_time}
+                                                                else
+                                                                    | -
+                                                            td.text-left #{new Date(row.time).getHours() + ":" + new Date(row.time).getMinutes() || "-"}
+                                                            td.text-left
+                                                                a(href='/backend/verified_drivers/profile?id=#{row.driver_user_id}')
+                                                                    | #{row.first_name} #{row.last_name}
+                                                            td.text-left #{row.representer_code||"-"}
+                                                            td.text-left
+                                                                a(href='/backend/passengers/profile/#{row.passenger_user_id}')
+                                                                    | #{row.full_name || "-"}
+                                                            td.text-left #{row.main_price}
+                                                            td.text-left #{row.name}
+                                                            td.text-left
+                                                                a(href='/backend/trips/profile/#{row.id}')
+                                                                    | جزییات
+
+                                            //ul(class="pagination")
+                                            //    li(class="paginate_button previous" aria-controls="sample_3" tabindex="0" id="sample_3_previous")
+                                            //        a.paging(href="javascript:;" id="#{pageParams.target - 1}") قبلی
+                                            //
+                                            //        - for (var i = pageParams.start ; i <= pageParams.end ; i++) {
+                                            //
+                                            //        if i == pageParams.target
+                                            //            li(class="paginate_button active " aria-controls="sample_3" tabindex="0")
+                                            //                a.paging(href="javascript:;" id="#{i}") #{i}
+                                            //        else
+                                            //            li(class="paginate_button  " aria-controls="sample_3" tabindex="0")
+                                            //                a.paging(href="javascript:;" id="#{i}") #{i}
+                                            //
+                                            //
+                                            //        -}
+                                            //
+                                            //    li(class="paginate_button next" aria-controls="sample_3" tabindex="0" id="sample_3_next")
+                                            //        a.paging(href="javascript:;" id="#{pageParams.target + 1}") بعدی
+                                    else
+                                        h1 هنوز رکوردی تعریف نگردیده است
+
+
+    // END CONTENT
+block cssHeader
+    link(href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap-rtl.css")
+    link(href="/metronic_rtl/assets/admin/pages/css/tasks-rtl-table.css", rel="stylesheet", type="text/css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block append jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/select2/select2.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/media/js/jquery.dataTables.min.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/global/plugins/datatables/plugins/bootstrap/dataTables.bootstrap.js')
+    // END PAGE LEVEL PLUGINS
+
+    // BEGIN PAGE LEVEL SCRIPTS 
+    script(src='/metronic_rtl/assets/admin/pages/scripts/table-managed.js')
+    script(type='text/javascript', src='/metronic_rtl/assets/admin/pages/scripts/tasks-table.js')
+
+    script.
+        jQuery(document).ready(function () {
+            $('.mg2j').each(function (i, el) {
+                $(el).html(g2j($(el).html()));
+            });
+            $('.mg2Time').each(function (i, el) {
+                $(el).html(g2Time($(el).html()));
+            });
+            $('.itIsDatePicker').persianDatepicker({
+                formatDate: "YYYY/MM/DD",
+                fontSize: 12,
+                selectedBefore: false
+            });
+            var theForm = $("#frmUser");
+            $('#saveBtn').on('click', function (event) {
+                Pace.restart()
+                event.preventDefault();
+                $("#saveBtn").prop('disabled', true);
+                var formData = theForm.serializeJSON();
+                $.post('/backend/search/trips/1', formData, function (data) {
+                    $('.question_content').html(data);
+                })
+                $(document).ajaxStop(function () {
+                    $("#saveBtn").prop('disabled', false);
+                });
+            });
+            $("a.paging").on('click', function (ev) {
+                Pace.restart()
+                $("#saveBtn").prop('disabled', true);
+                var id = $(this).attr('id')
+                var formData = theForm.serializeJSON();
+                $.post('/backend/search/trips/' + id, formData, function (data) {
+                    console.log("data", data)
+                    $("#saveBtn").prop('disabled', false);
+                    $('.question_content').html(data);
+                })
+            });
+            $("#excel").click(function (e) {
+                e.preventDefault();
+                notyfy({
+                    force: true,
+                    timeout: true,
+                    text: "در حال بارگذاری فایل",
+                    type: 'success',
+                    layout: 'top',
+                    closeWith: ['click']
+                });
+                var theForm = $("#frmUser");
+                var formData = theForm.serializeJSON();
+                $.post('/backend/trips/excel', formData, function (data) {
+                    $("#saveBtn").prop('disabled', false);
+                    window.location = data
+                    $.notyfy.closeAll()
+                })
+            });
+            $('#example').dataTable({
+                paginate: true,
+                "pagingType": "full_numbers",
+                "language": {
+                    "paginate": {
+                        "first": "<span class='fa fa-angle-double-right'></span>",
+                        "last": "<span class='fa fa-angle-double-left'></span>",
+                        "previous": "<span class='fa fa-angle-right'></span>",
+                        "next": "<span class='fa fa-angle-left'></span>"
+                    }
+                },
+                "order": [1, "desc"],
+                "info": false,
+                bFilter: false
+            });
+        });
+

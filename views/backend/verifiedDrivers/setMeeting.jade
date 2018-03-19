@@ -1,0 +1,141 @@
+extends ../layout
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | تایید راننده
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت رانندگان
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/unverified_drivers') رانندگان تایید نشده
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/unverified_drivers/set_meeting/#{profile.id}') تایید راننده
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray
+                        .portlet-title
+                            .caption
+                                |  تایید راننده
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmUser.horizontal-form(name='frmUser', method='POST', action='/backend/unverified_drivers/do_meeting')
+                                div(class="modal fade" id="myModal" role="dialog")
+                                    div(class="modal-dialog")
+                                        div(class="modal-content")
+                                            div(class="modal-header")
+                                                button(type="button" class="close" data-dismiss="modal")
+                                                h4(class="modal-title")
+                                                    | آیا اطمینان دارید؟
+                                            div(class="modal-body" id="mybody")
+                                                button(class="btn btn-success" id="yes") بله
+                                                button(type="button" class="btn btn-danger" data-dismiss="modal") خیر
+
+                                .form-body
+                                    h3.form-section مدارک زیر بررسی و تایید میشوند:
+                                    input(type='hidden' name='id' value='#{profile.id}')
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                input.form-control.text-left(type='checkbox', name='driving_licence_confirm' )
+                                                label گواهی نامه
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                input.form-control.text-left(type='checkbox', name='technical_diagnosis_confirm' )
+                                                label برگه معاینه فنی
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                input.form-control.text-left(type='checkbox', name='vehicle_card_confirm' )
+                                                label کارت خودرو
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                input.form-control.text-left(type='checkbox', name='clearances_confirm' )
+                                                label گواهی عدم سو پیشینه
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                input.form-control.text-center(class="state"  type='checkbox' , name='vehicle_ownership_document_confirm')
+                                                label سند خودرو
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                input.form-control.text-center(class="state"   type='checkbox' name="vehicle_insurance_confirm")
+                                                label بیمه نامه
+
+                                    h3.form-section تعهدات راننده
+                                    .row
+                                        .col-md-6
+                                            .form-group
+                                                input#beyane.form-control.text-center(class="state" type='checkbox' name='')
+                                                label میزان سپرده موقت به ارزش 300/000 تومان دریافت شد
+                                        .col-md-6
+                                            .form-group
+                                                input#read.form-control.text-center(class="state" type='checkbox')
+                                                label تمام شرایط و قوانین هوبر توسط راننده مطالعه و تایید شدند
+
+
+                                    .row
+                                        .col-md-6
+                                            button#accept.btn.green()
+                                                i.fa.fa-check
+                                                | &nbsp; تایید نهایی
+
+// END CONTENT
+block cssHeader
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+
+    // END PAGE LEVEL PLUGINS
+    // BEGIN PAGE LEVEL SCRIPTS
+
+    script.
+        jQuery(document).ready(function () {
+            $("#accept").hide()
+            $("#accept").on('click', function (event) {
+                event.preventDefault();
+                $("#frmUser").submit()
+            })
+            $("#beyane,#read").on('click', function () {
+                var beyane = $("#beyane").is(':checked');
+                var read = $("#read").is(':checked');
+                console.log("read", read)
+                console.log("beyane", beyane)
+                if (beyane && read) {
+                    $("#accept").show()
+                } else {
+                    $("#accept").hide()
+                }
+            })
+        });
+

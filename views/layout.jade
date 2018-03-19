@@ -1,0 +1,24 @@
+doctype html
+html
+head
+  meta(charset='utf-8')
+  title #{appConfig.app.name} #{appConfig.app.version}
+
+  link(rel='stylesheet', href='/javascripts/bootstrap/css/bootstrap.min.css')
+  link(rel='stylesheet', href='/javascripts/bootstrap/css/bootstrap-theme.min.css')
+  link(rel='stylesheet', href='/stylesheets/style.css')
+
+  script(src='/javascripts/jquery/jquery-1.11.1.min.js')
+  script(src='/javascripts/bootstrap/js/bootstrap.min.js')
+
+  script.
+    $(function(){
+      // do sth
+    });
+
+  block jsHeader
+
+body
+  h1 Error Layout
+  hr
+  block content

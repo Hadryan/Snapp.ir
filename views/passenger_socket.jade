@@ -1,0 +1,394 @@
+html
+	head
+		meta(charset="utf-8")
+	body
+		p
+			| test socket
+		div#firstConnectDiv
+			input#UserId(type='text' placeholder='UserId' value="9060")
+			input#DeviceId(type='text' placeholder='DeviceId' value="123")
+			input#firstConnect(type='button' value='first connect')
+			br
+			br
+			br
+		div#updateSocketDiv
+			input#UserIds(type='text' placeholder='UserId' value="9060")
+			input#DeviceIds(type='text' placeholder='DeviceId' value="123")
+			//- input#SituationIds(type='text' placeholder='SituationId' value="4")
+			input#updateSocketData(type='button' value='update socket')
+			br
+			br
+			br
+		div#driversPositionDiv
+			input#SourceLat(type='text' placeholder='sourceLat' value='35.71779')
+			input#SourceLong(type='text' placeholder='sourceLong' value='51.42319')
+			input#SourceLabel(type='text' placeholder='sourceLabel' value="قائم مقام")
+			input#SourceDescription(type='text' placeholder='SourceDescription' value="قائم مقام کوچه بیستم پلاک 1")
+			input#driversPosition(type='button' value='get drivers position')
+			br
+			br
+			br
+		div#price_calculation_div(style='display:none')
+			input#TripTime(type='text' placeholder='TripTime' value="720")
+			input#TripDistance(type='text' placeholder='TripDistance' value="21000")
+			input#price_calculation(type='button' value='price calculation')
+			input#tripPrice(type='text' readonly='true')
+			br
+			br
+			br
+		div#discount_code_div(style='display:none')
+			input#discountCode(type='text' placeholder='discountCode' value="HB-PR507416")
+			input#discount_code(type='button' value='discount code')
+			input#tripNetPrice(type='text' readonly='true')
+			input#discountCodeId(type='text' readonly='true')
+			input#TripId(type='text' readonly='true')
+			br
+			br
+			br
+		div#request_driver_div(style='display:none')
+			input#DestinationLat(type='text' placeholder='DestinationLat' value='35.75752')
+			input#DestinationLong(type='text' placeholder='DestinationLong' value='51.41031')
+			input#DestinationLabel(type='text' placeholder='DestinationLabel' value="ونک")
+			input#DestinationDescription(type='text' placeholder='DestinationDescription' value="ونک برج نگار طبقه 18 واحد 85")
+			input#request_driver(type='button' value='request driver')
+			input#DriverUserId(type='text' placeholder='DriverUserId' readonly='true')
+			br
+			br
+			br
+		div#cancelTripDiv(style='display:none')
+			input#cancelTrip(type='button' value='cancel trip')
+			br
+			br
+			br
+		div#paymentDiv(style='display:none')
+			input#payment(type='button' value='payment')
+			br
+			br
+			br
+		div#editDestinationDiv(style='display:none')
+			input#NewTripEditTime(type='text' placeholder='NewTripEditTime' value='12')
+			input#NewTripEditDistance(type='text' placeholder='NewTripEditDistance' value='21')
+			input#editDestination(type='button' value='editDestination')
+			input#NewEditNetPrice(type='text' placeholder='NewEditNetPrice' readonly='true')
+			input#NewEditMainPrice(type='text' placeholder='NewEditMainPrice' readonly='true')
+			br
+			br
+			br
+		div#confirmEditDestinationDiv(style='display:none')
+			input#NewEditDestinationLat(type='text' placeholder='NewEditDestinationLat' value='35.73709')
+			input#NewEditDestinationLong(type='text' placeholder='NewEditDestinationLong' value='51.41520')
+			input#NewEditDestinationLabel(type='text' placeholder='NewEditDestinationLabel' value="میدان آرژانتین")
+			input#NewEditDestinationDescription(type='text' placeholder='NewEditDestinationDescription' value="ونک برج نگار طبقه 18 واحد 85")
+			input#NewEditDestinationTime(type='text' placeholder='NewEditDestinationTime' value="12")
+			input#NewEditDestinationDistance(type='text' placeholder='NewEditDestinationDistance' value="21")
+			input#confirmEditDestination(type='button' value='apply change')
+			br
+			br
+			br
+		div#addDestinationDiv(style='display:none')
+			input#NewTripAddTime(type='text' placeholder='NewTripAddTime' value='12')
+			input#NewTripAddDistance(type='text' placeholder='NewTripAddDistance' value='21')
+			input#addDestination(type='button' value='add Destination')
+			input#NewAddNetPrice(type='text' placeholder='NewAddNetPrice' readonly='true')
+			input#NewAddMainPrice(type='text' placeholder='NewAddMainPrice' readonly='true')
+			br
+			br
+			br
+		div#confirmAddDestinationDiv(style='display:none')
+			input#NewAddDestinationLat(type='text' placeholder='NewAddDestinationLat' value='35.76579')
+			input#NewAddDestinationLong(type='text' placeholder='NewAddDestinationLong' value='51.39530')
+			input#NewAddDestinationLabel(type='text' placeholder='NewAddDestinationLabel' value="میدان شیخ بهایی")
+			input#NewAddDestinationDescription(type='text' placeholder='NewAddDestinationDescription' value="ونک برج نگار طبقه 18 واحد 85")
+			input#NewAddDestinationTime(type='text' placeholder='NewAddDestinationTime' value="12")
+			input#NewAddDestinationDistance(type='text' placeholder='NewAddDestinationDistance' value="21")
+			input#confirmAddDestination(type='button' value='add')
+			br
+			br
+			br
+	block jsHeader
+	script(src='http://#{appConfig.host.domain}:#{appConfig.host.port}/socket.io/socket.io.js')
+	script(src="/metronic_rtl/assets/global/plugins/jquery-1.11.0.min.js", type="text/javascript")
+	script.
+
+		var ioPassengerApp = io.connect('/backend_passengerApp');
+		//var ioDriverApp = io.connect( '/backend_driverApp' );
+		jQuery(document).ready(function () {
+			$("#firstConnect").click(function (event) {
+				ioPassengerApp.emit('firstConnect', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val()
+				});
+			});
+			$("#updateSocketData").click(function (event) {
+				ioPassengerApp.emit('updateUserData', {
+					UserId: $("#UserIds").val(),
+					DeviceId: $("#DeviceIds").val()
+				});
+			});
+			ioPassengerApp.on("updateUserDataRes",function(params){
+				console.log('updateUserDataRes',params);
+			});
+			ioPassengerApp.on('ping', function (data) {
+				console.log("ping received!");
+				ioPassengerApp.emit('pong', {beat: 1});
+				ioPassengerApp.emit('myPong', {beat: 1});
+			});
+			ioPassengerApp.on('driverLocation', function (data) {
+				console.log("driverLocation received!",data);
+			});
+			ioPassengerApp.on("firstConnectRes", function (params) {
+				if(params.Result) {
+					$("#firstConnectDiv").hide();
+					console.log('firstConnectRes', params);
+					$("#price_calculation_div").show();
+				} else {
+					console.log('firstConnectRes Result false', params);
+				}
+			});
+
+			$("#driversPosition").click(function (event) {
+				ioPassengerApp.emit('driversPosition', {
+					SourceLat: $("#SourceLat").val(),
+					SourceLong: $("#SourceLong").val(),
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val()
+				});
+			});
+			ioPassengerApp.on("driversPositionRes", function (params) {
+				console.log('driversPositionRes', params);
+			});
+
+			$("#price_calculation").click(function (event) {
+				ioPassengerApp.emit('priceCalculation', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					TripTime: $("#TripTime").val(),
+					TripDistance: $("#TripDistance").val()
+				});
+			});
+			ioPassengerApp.on("priceCalculationRes", function (params) {
+				console.log('priceCalculationRes',params);
+				$("#tripPrice").val(params.Data[0].price);
+				// $("#price_calculation_div").hide();
+				$("#discount_code_div").show();
+				$("#request_driver_div").show();
+			});
+
+			$("#discount_code").click(function (event) {
+				ioPassengerApp.emit('discountCode', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					TripPrice: $("#tripPrice").val(),
+					DiscountCode: $("#discountCode").val()
+				});
+			});
+			ioPassengerApp.on("discountCodeRes", function (params) {
+				console.log('discountCodeRes',params);
+				if(params.Result) {
+					$("#tripNetPrice").val(params.Data[0].price);
+					$("#discountCodeId").val(params.Data[0].discountCodeId);
+				} else {
+					$("#tripNetPrice").val($("#tripPrice").val());
+				}
+				$("#request_driver_div").show();
+			});
+
+			$("#request_driver").click(function (event) {
+				ioPassengerApp.emit('requestDriver', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					PassengerLat: $("#SourceLat").val(),
+					PassengerLong: $("#SourceLong").val(),
+					PassengerLabel: $("#SourceLabel").val(),
+					SourceLat: $("#SourceLat").val(),
+					SourceLong: $("#SourceLong").val(),
+					SourceLabel: $("#SourceLabel").val(),
+					SourceDescription: $("#SourceDescription").val(),
+					DestinationLat: $("#DestinationLat").val(),
+					DestinationLong: $("#DestinationLong").val(),
+					DestinationLabel: $("#DestinationLabel").val(),
+					DestinationDescription: $("#DestinationDescription").val(),
+					discountCodeId: $("#discountCodeId").val(),
+					TripPrice: $("#tripPrice").val(),
+					TripNetPrice: $("#tripNetPrice").val()
+				});
+			});
+			ioPassengerApp.on("requestDriverRes", function (params) {
+				if(params.Result){
+					$("#cancelTripDiv").show();
+					$("#TripId").val(params.Data[0].id);
+					console.log('requestDriverRes', params);
+					$("#request_driver_div").hide();
+					$("#discount_code_div").hide();
+					$("#request_driver_div").hide();
+				} else if(params.ErrorCode==27){
+					alert("no Driver Accept.");
+					console.log('requestDriverRes', params);
+				} else {
+					alert("no Driver Online.");
+					console.log('requestDriverRes', params);
+				}
+			});
+
+			$("#cancelTrip").click(function (event) {
+				ioPassengerApp.emit('cancelTrip', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					TripId: $("#TripId").val(),
+				});
+			});
+			ioPassengerApp.on("cancelTripRes", function (params) {
+				$("#paymentDiv").hide();
+				console.log('cancelTripRes', params);
+			});
+
+			ioPassengerApp.on("tripAccepted", function (params) {
+				//$("#cancelTripDiv").hide();
+				console.log('tripAccepted', params);
+				if (params.Result) {
+					$("#DriverUserId").val(params.Data[0].driverUserId);
+					$("#paymentDiv").show();
+					alert("trip accepted!");
+				} else {
+					alert("trip accepted with error!");
+				}
+			});
+
+			$("#payment").click(function (event) {
+				ioPassengerApp.emit('payment', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					TripId: $("#TripId").val(),
+				});
+			});
+			ioPassengerApp.on("paymentRes", function (params) {
+				$("#paymentDiv").hide();
+				console.log('paymentRes', params);
+			});
+
+			ioPassengerApp.on("driverArrival", function (params) {
+				console.log('driverArrival', params);
+				var Arrival = prompt('Driver arrival.\nWhen you arrival?',1);
+				ioPassengerApp.emit('passengerArrivalTime', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					TripId: $("#TripId").val(),
+					Arrival: 1
+				});
+			});
+			ioPassengerApp.on("passengerArrivalTimeRes", function (params) {
+				console.log('passengerArrivalTimeRes', params);
+			});
+
+			ioPassengerApp.on("tripStarted", function (params) {
+				$("#editDestinationDiv").show();
+				$("#addDestinationDiv").show();
+				alert("trip started!");
+				console.log('tripStarted', params);
+			});
+
+			$("#editDestination").click(function (event) {
+				ioPassengerApp.emit('editDestination', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					TripId: $("#TripId").val(),
+					NewTripEditTime: $("#NewTripEditTime").val(),
+					NewTripEditDistance: $("#NewTripEditDistance").val()
+				});
+			});
+			ioPassengerApp.on("editDestinationRes", function (params) {
+				console.log('editDestinationRes', params);
+				if(params.Result) {
+					$("#NewEditNetPrice").val(params.Data[0].newNetPrice);
+					$("#NewEditMainPrice").val(params.Data[0].newMainPrice);
+					$("#confirmEditDestinationDiv").show();
+				} else {
+					alert('edit destination not successful');
+				}
+			});
+
+			$("#addDestination").click(function (event) {
+				ioPassengerApp.emit('addDestination', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					TripId: $("#TripId").val(),
+					NewTripAddTime: $("#NewTripAddTime").val(),
+					NewTripAddDistance: $("#NewTripAddDistance").val()
+				});
+			});
+			ioPassengerApp.on("addDestinationRes", function (params) {
+				console.log('addDestinationRes', params);
+				if(params.Result) {
+					$("#NewAddNetPrice").val(params.Data[0].newNetPrice);
+					$("#NewAddMainPrice").val(params.Data[0].newMainPrice);
+					$("#confirmAddDestinationDiv").show();
+				} else {
+					alert('add destination not successful');
+				}
+			});
+
+			$("#confirmEditDestination").click(function (event) {
+				ioPassengerApp.emit('confirmEditDestination', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					TripId: $("#TripId").val(),
+					NewNetPrice: $("#NewEditNetPrice").val(),
+					NewMainPrice: $("#NewEditMainPrice").val(),
+					NewEditDestinationLat: $("#NewEditDestinationLat").val(),
+					NewEditDestinationLong: $("#NewEditDestinationLong").val(),
+					NewEditDestinationLabel: $("#NewEditDestinationLabel").val(),
+					NewEditDestinationDescription: $("#NewEditDestinationDescription").val(),
+					NewEditDestinationTime: $("#NewEditDestinationTime").val(),
+					NewEditDestinationDistance: $("#NewEditDestinationDistance").val()
+				});
+			});
+			ioPassengerApp.on("confirmEditDestinationRes", function (params) {
+				$("#editDestinationDiv").hide();
+				$("#addDestinationDiv").hide();
+				$("#confirmEditDestinationDiv").hide();
+				$("#confirmAddDestinationDiv").hide();
+				console.log('confirmEditDestinationRes', params);
+			});
+
+			$("#confirmAddDestination").click(function (event) {
+				ioPassengerApp.emit('confirmAddDestination', {
+					UserId: $("#UserId").val(),
+					DeviceId: $("#DeviceId").val(),
+					TripId: $("#TripId").val(),
+					NewNetPrice: $("#NewAddNetPrice").val(),
+					NewMainPrice: $("#NewAddMainPrice").val(),
+					NewAddDestinationLat: $("#NewAddDestinationLat").val(),
+					NewAddDestinationLong: $("#NewAddDestinationLong").val(),
+					NewAddDestinationLabel: $("#NewAddDestinationLabel").val(),
+					NewAddDestinationDescription: $("#NewAddDestinationDescription").val(),
+					NewAddDestinationTime: $("#NewAddDestinationTime").val(),
+					NewAddDestinationDistance: $("#NewAddDestinationDistance").val()
+				});
+			});
+			ioPassengerApp.on("confirmAddDestinationRes", function (params) {
+				$("#editDestinationDiv").hide();
+				$("#addDestinationDiv").hide();
+				$("#confirmEditDestinationDiv").hide();
+				$("#confirmAddDestinationDiv").hide();
+				console.log('confirmAddDestinationRes', params);
+			});
+			ioPassengerApp.on("confirmedPayment", function (params) {
+				$("#paymentDiv").hide();
+				alert("payment confirmed!");
+				console.log('confirmedPayment', params);
+			});
+
+			ioPassengerApp.on("tripEnded", function (params) {
+				console.log('tripEnded', params);
+				if (params.Result) {
+					if (params.Data[0].finish) {
+						alert("Trip Ended!");
+						$("#endTripDiv").hide();
+						$("#editDestinationDiv").hide();
+						$("#addDestinationDiv").hide();
+					} else {
+						alert("next destination started!");
+					}
+				}
+			});
+		})

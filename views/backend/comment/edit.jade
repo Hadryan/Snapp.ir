@@ -1,0 +1,766 @@
+extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3.page-title
+                        | مدیریت پیام ها
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/comment') مدیریت پیام ها
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') ویرایش پیام
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue
+                        .portlet-title
+                            .caption
+                                i.fa.fa-cog
+                                    | ویرایش پیام
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmComment.horizontal-form(name='frmComment', method='POST', action='')
+                                input#id(name='id', type='hidden', value='#{ commentDetail.id }')
+                                .form-body
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+                                                label.control-label
+                                                    span.required(aria-required='true') *
+                                                    | توضیحات
+                                                input#description.text-left.form-control(type='text' name='description'  value='#{ commentDetail.description }')
+                                                span.help-block لطفا توضیحات را وارد نمایید
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+                                                label.control-label
+                                                    span
+                                                    | کلمه عبور
+                                                input#passcode.text-right.form-control(type='password' name='passcode'  value='#{ commentDetail.passcode }')
+                                                span.help-block لطفا کلمه عبور را وارد نمایید
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+                                                label.control-label
+                                                    span
+                                                    | جزییات
+                                                textarea#detail.text-left.form-control(rows='6' name='detail'  )  #{ commentDetail.detail }
+                                                span.help-block لطفا جزییات را وارد نمایید
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+                                                label.control-label
+                                                    span
+                                                    | ویرایشگر
+                                                textarea#exitor1.text-left.wysihtml5.form-control(rows='6' name='editor1'  data-error-container='#editor_editor1') #{ commentDetail.editor1 }
+                                                #editor_editor1
+                                                span.help-block لطفا مطلب را وارد نمایید
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+                                                label.control-label
+                                                    span
+                                                    | سن
+                                                #ageSpinner
+                                                    .input-group.input-large
+                                                        input#age.spinner-input.text-right.form-control(type='text' name='age'  value='#{ commentDetail.age }')
+                                                        .spinner-buttons.input-group-btn.btn-group-vertical
+                                                            button.btn.spinner-up.btn-xs.blue(type='button')
+                                                                i.fa.fa-angle-up
+                                                            button.btn.spinner-down.btn-xs.blue(type='button')
+                                                                i.fa.fa-angle-down
+                                                    span.help-block لطفا سن را وارد نمایید
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                label.control-label
+                                                    span
+                                                    | وضعیت
+                                                div
+                                                    if commentDetail.status == 'Active'
+                                                        input#status.make-switch(type='checkbox' checked='checked' name='status' data-size='normal' data-on-text='فعال' data-on-color='success' data-off-text='غیر فعال' data-off-color='danger')
+                                                    else
+                                                        input#status.make-switch(type='checkbox' name='status' data-size='normal' data-on-text='فعال' data-on-color='success' data-off-text='غیر فعال' data-off-color='danger')
+                                                span.help-block لطفا وضعیت را وارد نمایید
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                label.control-label
+                                                    span.required(aria-required='true') *
+                                                    | روش آشنایی
+                                                br
+                                                select#introduceType.form-control.input-large.select2me.text-left(name='introduceType' )
+                                                    option(value='')
+                                                    if commentDetail.introduceType == 'a'
+                                                        option(value='a' selected='selected') الف
+                                                    else
+                                                        option(value='a') الف
+                                                    if commentDetail.introduceType == 'b'
+                                                        option(value='b' selected='selected') یب
+                                                    else
+                                                        option(value='b') یب
+                                                    if commentDetail.introduceType == 'c'
+                                                        option(value='c' selected='selected') سی
+                                                    else
+                                                        option(value='c') سی
+                                                span.help-block لطفا روش آشنایی را وارد نمایید
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                label.control-label
+                                                    span.required(aria-required='true') *
+                                                    | کاربر
+                                                br
+                                                select#UserId.form-control.input-large.select2me.text-left(name='UserId' )
+
+                                                    option(value='')
+                                                    if backend_usersList && backend_usersList.length
+                                                        each row, index in backend_usersList
+                                                            if row.dataValues.id == commentDetail.UserId
+                                                                option(value='#{ row.dataValues.id }', selected='selected') #{ row.username }
+                                                            else
+                                                                option(value='#{ row.dataValues.id }') #{ row.username }
+
+                                                    span.help-block لطفا کاربر را وارد نمایید
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+                                                label.control-label
+                                                    span.required(aria-required='true') *
+                                                    | روش
+
+                                                .radio-list
+                                                    label.radio-inline
+                                                        if commentDetail.way == 'book'
+                                                            input#way.text-left(type='radio' name='way' value='book' checked='checked'  )
+                                                            | کتاب
+                                                        else
+                                                            input#way.text-left(type='radio' name='way' value='book'  )
+                                                            | کتاب
+                                                    label.radio-inline
+                                                        if commentDetail.way == 'internet'
+                                                            input#way.text-left(type='radio' name='way' value='internet' checked='checked'  )
+                                                            | اینترنت
+                                                        else
+                                                            input#way.text-left(type='radio' name='way' value='internet'  )
+                                                            | اینترنت
+                                                    label.radio-inline
+                                                        if commentDetail.way == 'other'
+                                                            input#way.text-left(type='radio' name='way' value='other' checked='checked' disabled='disabled' )
+                                                            | موارد دیگر
+                                                        else
+                                                            input#way.text-left(type='radio' name='way' value='other' disabled='disabled' )
+                                                            | موارد دیگر
+
+                                                span.help-block لطفا روش را وارد نمایید
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                label.control-label
+                                                    span.required(aria-required='true') *
+                                                    | تاریخ
+                                                input#when_(type='hidden' name='when_' value='#{ commentDetail.when }')
+                                                input#when.text-left.form-control(type='text' name='when' )
+                                                span.help-block لطفا تاریخ را وارد نمایید
+
+
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                label.control-label
+                                                    span
+                                                    | نمایه
+
+                                                .fileinput.fileinput-new(data-provides='fileinput')
+                                                    .fileinput-new.thumbnail(style='width: 100px ; height: 100px;')
+                                                        img(src='/app/comment/#{ commentDetail.img }')
+
+                                                    .fileinput-preview.fileinput-exists.thumbnail(style='max-width: 100px; max-height: 100px;')
+                                                    div
+                                                        span.btn.default.btn-file
+                                                            span.fileinput-new انتخاب
+                                                            span.fileinput-exists تغییر
+                                                            input#img(type='file' name='img' )
+                                                        a.btn.red.fileinput-exists(href='javascript:;', data-dismiss='fileinput') حذف
+
+                                                span.help-block لطفا نمایه را انتخاب نمایید
+
+
+
+
+
+                                    .row
+                                        .col-md-12.col-sm-12.col-xs-12
+                                            .form-group
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                label.control-label
+                                                    span
+                                                    | زمان
+                                                .input-group
+                                                    input#thetime.form-control.timepicker.timepicker-no-seconds.text-left.itIsTimePicker(type="text" style="direction:ltr" name='thetime' value='#{ commentDetail.thetime }' )
+
+                                                    span.input-group-btn
+                                                        button.btn.default(type="button")
+                                                            i.fa.fa-clock-o
+
+                                                span.help-block لطفا زمان را انتخاب نمایید
+
+
+
+
+
+                                // end form body
+                                .form-actions
+                                    .row
+                                        .col-md-12
+                                            button#saveBtn.btn.green(type='submit')
+                                                i.fa.fa-check
+                                                | &nbsp; ذخیره
+                                        &nbsp;
+    a.btn.default(href='/backend/comment')
+        i.fa.fa-times
+        | &nbsp; انصراف
+
+
+
+
+// END CONTENT
+block cssHeader
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5-rtl.css")
+
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-select/bootstrap-select-rtl.min.css")
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/select2/select2-rtl.css")
+
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css")
+
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+
+
+
+
+block jsHeader
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-wysihtml5/wysihtml5-0.3.0.js")
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-wysihtml5/bootstrap-wysihtml5.js")
+
+
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/fuelux/js/spinner.min.js")
+
+
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-select/bootstrap-select.min.js")
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/select2/select2.min.js")
+
+
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js")
+
+
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+
+
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+
+
+
+    // BEGIN PAGE LEVEL SCRIPTS    
+    script.
+        jQuery(document).ready(function () {
+
+            var uploadCounter = 0;
+
+            var theForm = $("#frmComment");
+
+            ioBackendPostLogin = io.connect('/backend_postLogin');
+
+            var handleWysihtml5 = function () {
+                if (!jQuery().wysihtml5) {
+                    return false;
+                }
+                if ($('.wysihtml5').size() > 0) {
+                    $('.wysihtml5').wysihtml5({
+                        "html": false,
+                        "link": false,
+                        "image": false,
+                        "stylesheets": ["/metronic_rtl/assets/global/plugins/bootstrap-wysihtml5/wysiwyg-color.css"]
+                    });
+                }
+            }
+            handleWysihtml5();
+
+            $('#ageSpinner').spinner({value: 18, step: 1, min: 0, max: 120});
+
+            $when_ = moment($('#when_').val()).format('jYYYY/jMM/jDD');
+            $('#when').val($when_).persianDatepicker({
+                formatDate: "YYYY/MM/DD",
+                fontSize: 12
+            });
+
+            var uploader_img = false;
+            $('#img').on('change', function (e) {
+                uploader_img = e.originalEvent.target.files[0];
+            });
+
+            $('.timepicker-no-seconds').timepicker({
+                autoclose: true,
+                showMeridian: false,
+                minuteStep: 5
+            });
+            // handle input group button click
+            $('.timepicker').parent('.input-group').on('click', '.input-group-btn', function (e) {
+                e.preventDefault();
+
+                $(this).parent('.input-group').find('.timepicker').timepicker('showWidget');
+            });
+
+            // --------------------------------------------------------------------------------
+            // ---/ Handle EDIT Global Event --------------------------------------------------------
+            // --------------------------------------------------------------------------------
+            $('#saveBtn').on('click', function (event) {
+                event.preventDefault();
+
+                var formData = theForm.serializeJSON();
+
+                formData.status = (formData.status == 'on') ? 'Active' : 'Inactive';
+
+                formData.when = moment($('#when').val(), 'jYYYY/jMM/jDD').format('YYYY/MM/DD');
+
+                if (uploader_img != false) {
+                    uploadCounter++;
+                }
+
+                ioBackendPostLogin.emit('comment.edit', formData);
+
+            });
+
+            ioBackendPostLogin.on('comment.edit_res', function (resp) {
+                if (resp && resp.result) {
+
+                    if (uploader_img != false) {
+                        var render_img = new FileReader();
+                        render_img.onload = function (evt) {
+                            formData = {
+                                id: resp.data.id,
+                                model: 'Comment',
+                                field: 'img',
+                                path: 'comment'
+                            };
+                            formData.file1 = evt.target.result;
+                            ioBackendPostLogin.emit('uploadFile', formData);
+                        }
+                        render_img.readAsDataURL(uploader_img);
+                    }
+
+                    if (true
+                        && uploader_img == false
+                    ) {
+                        window.location = '../../comment';
+                    }
+
+                } else {
+
+                    if (resp.errorAllObj) {
+                        frmShowError(resp.errorAllObj);
+                        if (resp.isLogin == false) {
+                            window.location = 'logout';
+                        }
+                    }
+
+                }
+            });
+
+            ioBackendPostLogin.on('uploadFile_res', function (resp) {
+                if (resp && resp.result) {
+
+                    if (uploadCounter > 0) {
+                        uploadCounter--;
+                    }
+                    if (uploadCounter <= 0) {
+                        window.location = '../../comment';
+                    }
+                } else {
+
+                    if (resp.errorAllObj) {
+                        //console.log(resp.errorAllObj.ALL);
+                        frmShowError(resp.errorAllObj);
+                        if (resp.isLogin == false) {
+                            window.location = 'logout';
+                        }
+                    }
+
+                }
+
+            });
+
+            // --- Handle EDIT Global Event /--------------------------------------------------------
+
+            // --------------------------------------------------------------------------------
+            // ---/ Handle NEED FOR USER AUTHENTICATION Global Event --------------------------
+            // --------------------------------------------------------------------------------
+            ioBackendPostLogin.on('need_authentication', function (resp) {
+                if (resp && resp.error) {
+                    window.location = 'login';
+                }
+            });
+            // --- Handle NEED FOR USER AUTHENTICATION Global Event /--------------------------
+
+        });

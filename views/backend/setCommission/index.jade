@@ -1,0 +1,77 @@
+extends ../layout
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | تنظیم درصد پورسانت
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') تنظیم درصد پورسانت
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray
+                        .portlet-title
+                            .caption
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmCommission.horizontal-form(name='frmUser', method='POST')
+                                .form-body
+                                    .row
+                                        .col-md-6
+                                            .form-group
+                                                label لطفا مقدار درصد پورسانت مربوط به هوبر را به صورت یک عدد دو رقمی وارد نمایید
+                                                input.form-control.text-left#commission_amount(name='commission_amount' type='text' data-req="true" style="font-size:18px" value="#{setting.commission_amount}" )
+                                                br
+                                        .col-md-6
+                                            .form-group
+                                                label
+                                                    span(style="visibility:hidden") dsf
+                                                br
+                                                input.btn.green(type='submit' value='ذخیره')
+
+// END CONTENT
+block cssHeader
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+
+    // END PAGE LEVEL PLUGINS
+    // BEGIN PAGE LEVEL SCRIPTS
+
+    script.
+        jQuery(document).ready(function() {
+            $("#frmCommission").submit(function (e) {
+                if(parseInt($("#commission_amount").val())>0 && parseInt($("#commission_amount").val())<100){
+                    return true;
+                } else {
+                    e.preventDefault();
+                    alert("لطفا مقدار درصد پورسانت را به صورت یک عدد دو رقمی وارد نمایید");
+                    return false;
+                }
+            });
+        });

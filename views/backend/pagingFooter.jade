@@ -1,0 +1,43 @@
+.row.has-top-margin
+   .col-lg-12.col-md-12.col-sm-12.col-xs-12
+      nav(aria-label='Page navigation')
+         ul.pagination
+            if(paging.first.current)
+               li.disabled
+                  a(href='javascript:;', aria-label='First')
+                     span(aria-hidden='true') اول
+            else
+               li
+                  a(href='?page=#{paging.first.index}', aria-label='First' data-page-index="#{paging.first.index}")
+                     span(aria-hidden='true') اول
+            if(paging.prev.current)
+               li.disabled
+                  a(href='javascript:;', aria-label='Previous')
+                     span(aria-hidden='true') قبلی
+            else
+               li
+                  a(href='?page=#{paging.prev.index}', aria-label='Previous' data-page-index="#{paging.prev.index}")
+                     span(aria-hidden='true') قبلی
+            each page,index in paging.pages
+               if(page.current)
+                  li.active
+                     a(href='javascript:;') #{page.index}
+               else
+                  li
+                     a(href='?page=#{page.index}' data-page-index="#{page.index}") #{page.index}
+            if(paging.next.current)
+               li.disabled
+                  a(href='javascript:;', aria-label='Next')
+                     span(aria-hidden='true') بعدی
+            else
+               li
+                  a(href='?page=#{paging.next.index}', aria-label='Next' data-page-index="#{paging.next.index}")
+                     span(aria-hidden='true') بعدی
+            if(paging.last.current)
+               li.disabled
+                  a(href='javascript:;}', aria-label='Last')
+                     span(aria-hidden='true') آخر
+            else
+               li
+                  a(href='?page=#{paging.last.index}', aria-label='Last' data-page-index="#{paging.last.index}")
+                     span(aria-hidden='true') آخر

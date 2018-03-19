@@ -1,0 +1,26 @@
+extends backend/layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+
+block content
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+block cssHeader
+    link(type='text/css', href='/javascripts/datepicker/jquery-ui-1.8.14.css', rel='stylesheet')
+    link(href="/stylesheets/flaticon.css", rel="stylesheet", type="text/css")
+    link(href="/stylesheets/style.css", rel="stylesheet", type="text/css")
+block jsHeader
+

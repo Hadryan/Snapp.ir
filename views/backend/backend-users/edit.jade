@@ -1,0 +1,285 @@
+extends ../layout
+
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+
+
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3.page-title
+                        | مدیریت کاربران
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/backend-users') مدیریت کاربران
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') ویرایش کاربر
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+
+
+
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue
+                        .portlet-title
+                            .caption
+                                i.fa.fa-cog
+                                    |   ویرایش کاربر
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmUser.horizontal-form(name='frmUser', method='POST', action='')
+                                input#id(name='id', type='hidden', value='#{userDetail.id}')
+                                .form-body
+                                    h3.form-section مشخصات کاربری
+                                    .row
+                                        .col-md-4
+                                            .form-group
+                                                label.control-label
+                                                    span.required(aria-required='true')  *
+                                                    |  نام و نام خانوادگی
+                                                input.form-control(name='fullname', type='text', data-req="true", value='#{userDetail.fullname}')
+                                            .form-group
+                                                label.control-label
+                                                    span.required(aria-required='true')  *
+                                                    |  نام کاربری
+                                                .input-group
+                                                    input.form-control.text-right(type='text', name='username', data-req="true", value='#{userDetail.username}')
+                                                    span.input-group-addon
+                                                        i.fa.fa-user
+                                                .help-block  چک کنید که نام کاربری شما قبلا ثبت نشده باشد.
+                                            .form-group
+                                                label.control-label
+                                                    span.required(aria-required='true')  *
+                                                    |  رمز
+                                                .input-group
+                                                    input.form-control.text-right(type='password', name='password', data-req="true", value='#{userDetail.password}')
+                                                    span.input-group-addon
+                                                        i.fa.fa-key
+
+                                                span.help-block
+                                                    | طول رمز نباید کمتر از 6 کاراکتر باشد.
+                                        .col-md-4
+                                            .form-group
+                                                label.control-label
+                                                    span.required(aria-required='true')  *
+                                                    |  ایمیل
+                                                .input-group
+                                                    input.form-control.text-right(type='text', name='email', value='#{userDetail.email}')
+                                                    span.input-group-addon
+                                                        i.fa.fa-envelope-o
+
+                                            .form-group
+                                                label.control-label
+                                                    span.required(aria-required='true')  *
+                                                    |  موبایل
+                                                .input-group
+                                                    input.form-control.text-right(type='text', name='mobileNumber', maxlength='11', value='#{userDetail.mobileNumber}')
+                                                    span.input-group-addon
+                                                        i.fa.fa-phone
+                                                span.help-block  شماره موبایل با 09 شروع می شود.
+
+
+                                            .form-group(style='margin-top:45px;')
+                                                .row
+                                                    .col-md-6
+                                                        label.control-label
+                                                            span.required(aria-required='true')  *
+                                                            |  جنسیت
+
+                                                        if userDetail.gender == 'Male'
+                                                            input.make-switch(type='checkbox', checked='checked',  data-on-text='مذکر', data-off-text='مونث', data-size='normal', name='gender')
+                                                        else
+                                                            input.make-switch(type='checkbox', data-on-text='مذکر', data-off-text='مونث', data-size='normal', name='gender')
+
+                                                    .col-md-6
+                                                        label وضعیت
+                                                        if userDetail.status == 'Active'
+                                                            input.make-switch(type='checkbox',checked='checked', data-on-color='success', data-on-text='فعال', data-off-color='danger', data-off-text='غیر فعال', data-size='normal', name='status')
+                                                        else
+                                                            input.make-switch(type='checkbox', data-on-color='success', data-on-text='فعال', data-off-color='danger', data-off-text='غیر فعال', data-size='normal', name='status')
+
+
+                                        .col-md-4
+                                            .form-group
+                                                label.control-label آرم رستوران
+                                                .row
+                                                    .col-md-12
+                                                        .fileinput.fileinput-new(data-provides='fileinput')
+                                                            .fileinput-new.thumbnail(style='width: 100px; height: 100px;')
+                                                                img(src='/app/backend_users/#{userDetail.img}', alt='')
+                                                            .fileinput-preview.fileinput-exists.thumbnail(style='max-width: 100px; max-height: 100px;')
+                                                            div
+                                                                span.btn.default.btn-file
+                                                                    span.fileinput-new انتخاب عکس
+                                                                    span.fileinput-exists تغییر
+                                                                    input#img(type='file', name='img')
+                                                                a.btn.red.fileinput-exists(href='javascript:;', data-dismiss='fileinput') حذف
+
+
+
+                                // end form body
+                                .form-actions
+                                    .row
+                                        .col-md-12
+                                            button#saveBtn.btn.green(type='submit')
+                                                i.fa.fa-check
+                                                | &nbsp; ذخیره
+                                        &nbsp;
+    a.btn.default(href='/backend/backend-users')
+        i.fa.fa-times
+        | &nbsp; انصراف
+
+
+
+
+// END CONTENT
+block cssHeader
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+
+block jsHeader
+    // BEGIN PAGE LEVEL PLUGINS 
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+    // END PAGE LEVEL PLUGINS
+    // BEGIN PAGE LEVEL SCRIPTS 
+
+    script.
+        jQuery(document).ready(function () {
+
+            var theForm = $("#frmUser");
+
+            ioBackendPostLogin = io.connect('/backend_postLogin');
+
+            var fileUpload1 = false;
+            $('#img').on('change', function (e) {
+                fileUpload1 = e.originalEvent.target.files[0];
+            });
+
+            // --------------------------------------------------------------------------------
+            // ---/ Handle EDIT Global Event --------------------------------------------------------
+            // --------------------------------------------------------------------------------
+            $('#saveBtn').on('click', function (event) {
+                event.preventDefault();
+
+                var formData = theForm.serializeJSON();
+                formData.status = (formData.status == 'on') ? 'Active' : 'Inactive';
+                formData.gender = (formData.gender == 'on') ? 'Male' : 'Female';
+                console.log(formData);
+
+                //if ( validateForm('frmMenu') ) {
+
+                ioBackendPostLogin.emit('backend.user.edit', formData);
+                //} else {
+                //console.log('invalid form data!');
+                //}
+
+            });
+
+            ioBackendPostLogin.on('backend.user.edit_res', function (resp) {
+                console.log(resp);
+                if (resp && resp.result) {
+                    // upload file
+                    if (fileUpload1 != false) {
+                        var reader1 = new FileReader();
+                        reader1.onload = function (evt) {
+                            formData = {
+                                id: resp.data.id,
+                                model: 'BackendUser',
+                                field: 'img',
+                                path: 'backend_users'
+                            };
+                            formData.file1 = evt.target.result;
+                            //console.log('uploading file1 ...');
+                            //console.log(formData);
+                            ioBackendPostLogin.emit('uploadFile', formData);
+                        }
+                        reader1.readAsDataURL(fileUpload1);
+                    } else {
+                        //console.log('file1 not selected');
+                    }
+
+                    // successfully saved form
+                    //theForm[0].reset();
+                    //console.log('removed ' + resp.data + ' record successfully.');
+                    if (fileUpload1 == false) {
+                        window.location = '../../backend-users';
+                    }
+
+                    //frmShowSuccess({'ALL' : 'مشخصات کاربر با موفقیت اضافه شد'});
+                } else {
+
+                    if (resp.errorAllObj) {
+                        //console.log(resp.errorAllObj.ALL);
+                        frmShowError(resp.errorAllObj);
+                        if (resp.isLogin == false) {
+                            window.location = 'logout';
+                        }
+                    }
+
+                }
+            });
+            ioBackendPostLogin.on('uploadFile_res', function (resp) {
+                //console.log('file upload result ...');
+                //console.log(resp.data);
+                if (resp && resp.result) {
+                    // successfully saved file
+
+                    //console.log('counter' , uploadCounter);
+
+                    //console.log('redirecting ...')
+                    window.location = '../../backend-users';
+
+                } else {
+
+                    if (resp.errorAllObj) {
+                        //console.log(resp.errorAllObj.ALL);
+                        frmShowError(resp.errorAllObj);
+                        if (resp.isLogin == false) {
+                            window.location = 'logout';
+                        }
+                    }
+
+                }
+
+            });
+
+            // --- Handle EDIT Global Event /--------------------------------------------------------
+
+            // --------------------------------------------------------------------------------
+            // ---/ Handle NEED FOR USER AUTHENTICATION Global Event --------------------------
+            // --------------------------------------------------------------------------------
+            ioBackendPostLogin.on('need_authentication', function (resp) {
+                if (resp && resp.error) {
+                    window.location = 'login';
+                }
+            });
+            // --- Handle NEED FOR USER AUTHENTICATION Global Event /--------------------------
+
+        });
+
+    
+
+
+
+
+
+

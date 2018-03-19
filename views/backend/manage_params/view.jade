@@ -1,0 +1,94 @@
+if data && data.length
+    form#frmUser(name='frmUser', method='POST', action='')
+        input#user(type='hidden' value="#{data[0].user_id}")
+        table#example2.table.table-bordered.table-hover
+            thead
+                tr
+                    th.text-left
+                        | ردیف
+                    th.text-left
+                        | نام تغییر
+                    th.text-left
+                        | نوع تغییر
+                    th.text-left
+                        | مقدار تغییر
+                    th.text-left
+                        | وضعیت
+
+
+
+            tbody
+                each row, index in data
+                    tr.odd.gradeX
+                        td.text-left
+                            | #{row.id}
+                        td.text-left(dir='ltr')
+                            | #{row.title}
+                        td.text-left(dir='ltr')
+                            | #{row.parameter_type_id=='1'?'افزاینده':'کاهنده'}
+                        td.text-left(dir='ltr')
+                            | #{row.change_amount}
+                        td.text-left(style='height:25px')
+                            a.menu-sub.target(href="javascript:;" id="#{row.id}" state="#{row.flag_id }")
+                                if row.flag_id == 1
+                                    input.mine(type='checkbox',checked='checked', data-on-color='success', data-on-text='فعال', data-off-color='danger', data-off-text='غیر فعال', data-size='normal', name='my-checkbox')
+                                else
+                                    input.mine(type='checkbox', data-on-color='success', data-on-text='فعال', data-off-color='danger', data-off-text='غیر فعال', data-size='normal', name='my-checkbox')
+
+        ul(class="pagination")
+            li(class="paginate_button previous" aria-controls="sample_3" tabindex="0" id="sample_3_previous")
+                a.paging(href="javascript:;" id="#{pageParams.target - 1}") قبلی
+
+                - for (var i = pageParams.start ; i <= pageParams.end ; i++) {
+
+                if i == pageParams.target
+                    li(class="paginate_button active " aria-controls="sample_3" tabindex="0")
+                        a.paging(href="javascript:;" id="#{i}") #{i}
+                else
+                    li(class="paginate_button  " aria-controls="sample_3" tabindex="0")
+                        a.paging(href="javascript:;" id="#{i}") #{i}
+
+
+                -}
+
+            li(class="paginate_button next" aria-controls="sample_3" tabindex="0" id="sample_3_next")
+                a.paging(href="javascript:;" id="#{pageParams.target + 1}") بعدی
+else
+    h1 هنوز رکوردی تعریف نگردیده است
+script.
+    jQuery(document).ready(function() {
+
+            $(".mine").each(function () {
+                $(this).bootstrapSwitch();
+            })
+
+        $("a.paging").on('click', function (ev) {
+            Pace.restart()
+            $("#saveBtn").prop('disabled', true);
+            var id = $(this).attr('id')
+            $.post('/backend/search/manage_params/' + id, {}, function (data) {
+                console.log("data", data)
+                $("#saveBtn").prop('disabled', false);
+                $('.question_content').html(data);
+            })
+        })
+        $(".target").on('click', function (event) {
+            event.preventDefault()
+            var state = $(this).attr('state')
+            console.log("state", state)
+            var id = $(this).attr('id')
+            var newState = (state == '1' ? '2' : '1')
+            $(this).attr('state', newState)
+            $.post("/backend/change_flag/TripPriceParameters/" + id, {newState: newState}, function (data) {
+                console.log("data", data)
+            })
+        })
+
+            $('#example2').dataTable({
+                paginate: false,
+                "order": [1, "desc"],
+                "info": false,
+                "bFilter": false
+            });
+
+    });

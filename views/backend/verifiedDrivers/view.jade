@@ -1,0 +1,132 @@
+﻿block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    .table-toolbar
+        if userList && userList.length
+            form#frmUser(name='frmUser', method='POST', action='')
+                div(class="modal fade" id="myModal" role="dialog")
+                    div(class="modal-dialog")
+                        div(class="modal-content")
+                            div(class="modal-header")
+                                button(type="button" class="close" data-dismiss="modal")
+                                h4#modalTitle(class="modal-title")
+
+                            div(class="modal-body" id="mybody")
+                                button#modalBtn(type="button" data-dismiss="modal") بستن
+                div تعداد کل نتایج : #{userList.length}
+                table#example.table.table-bordered.table-hover
+                    thead
+                        tr
+                            th.text-left
+                                | ردیف
+                            th.text-left
+                                | کد اختصاصی
+                            th.text-left
+                                | نام و نام خانوادگی
+                            th.text-left کد معرف
+                            th.text-left
+                                | موبایل
+                            th.text-left
+                                | خودرو
+                            th.text-left
+                                | امتیاز
+                            th.text-left
+                                | دفعات پذیرش سفر
+                            th.text-left
+                                | شهر
+                            th.text-left
+                                | عملیات
+
+
+
+
+                    tbody
+                        each row, index in userList
+                            tr.odd.gradeX
+                                td.text-left
+                                    | #{row.id}
+                                td.text-left
+                                    | #{row.serviceProviderProfile.special_code}
+                                td.text-left
+                                    a.menu-sub(href='/backend/verified_drivers/profile?id=#{row.id}')
+                                        | #{row.serviceProviderProfile.first_name} #{row.serviceProviderProfile.last_name}
+                                td.text-left #{row.serviceProviderProfile.representer_code || "-"}
+                                td.text-left
+                                    | #{row.mobile}
+                                td.text-left(style="width:85px")
+                                    - var value= row.serviceProviderProfile.serviceProviderSpecialInfo.vehicleBrand || {name:"نا مشخص"}
+                                    - (value.name!='نا مشخص'?value.name+=row.serviceProviderProfile.serviceProviderSpecialInfo.vehicleModel.name:"")
+                                    | #{value.name}
+                                td.text-left
+                                    - var rate=parseInt(row.serviceProviderProfile.sum_rate)/(parseInt(row.serviceProviderProfile.rate_count)==0?1:parseInt(row.serviceProviderProfile.rate_count))
+                                    | #{Math.floor(rate)}
+                                td.text-left
+                                    | #{row.serviceProviderProfile.sum_trip_counts}
+                                td.text-left
+                                    - var value= row.serviceProviderProfile.city || {name:"نا مشخص"}
+                                    | #{value.name}
+                                td.text-left(style="width:175px")
+                                    if row.serviceProviderProfile.current_situation_id > 1
+                                        a.location.menu-sub(href="/backend/verified_drivers/see_online_driver/#{row.id}" style="margin-left:5px")
+                                            span.fa.fa-map-marker.fa-lg.has_tooltip(title="مشاهده موقعیت راننده روی نقشه")
+
+                                    a.menu-sub(href='/backend/verified_drivers/see_messages?id=#{row.id}' style='margin-left:20px;' title='نظرات مربوط به این راننده')
+                                        span.fa.fa-envelope-o.fa-lg.has_tooltip(title="ارسال پیام")
+                                        //img(src='/message.png' style='width:20px;height:20px')
+
+                                    a.menu-sub.target(href="javascript:;" id="#{row.id}" state="#{row.userSituation.id}")
+                                        if row.userSituation.id == 1
+                                            input.mine(type='checkbox',checked='checked', data-on-color='success', data-on-text='فعال', data-off-color='danger', data-off-text='غیر فعال', data-size='normal', name='my-checkbox')
+                                        else
+                                            input.mine(type='checkbox', data-on-color='success', data-on-text='فعال', data-off-color='danger', data-off-text='غیر فعال', data-size='normal', name='my-checkbox')
+
+
+        else
+            h1 هنوز رکوردی تعریف نگردیده است
+
+script.
+    jQuery(document).ready(function () {
+        $(".mine").each(function () {
+            $(this).bootstrapSwitch();
+        })
+        var theForm = $("#frmUser");
+        $("a:not(.menu-sub,.ah-pro)").on('click', function (ev) {
+            Pace.restart()
+            $("#saveBtn").prop('disabled', true);
+            var id = $(this).attr('id')
+            var formData = theForm.serializeJSON();
+            $.post('/backend/search/verified_drivers/' + id, formData, function (data) {
+                console.log("data", data)
+                $("#saveBtn").prop('disabled', false);
+                $('.question_content').html(data);
+            })
+        })
+        $(".target").on('click', function (event) {
+            event.preventDefault()
+            var state = $(this).attr('state')
+            console.log("state", state)
+            var id = $(this).attr('id')
+            var newState = (state == '1' ? '2' : '1')
+            $(this).attr('state', newState)
+            $.post("/backend/change_state/User/" + id, {newState: newState}, function (data) {
+                console.log("data", data)
+            })
+        })
+        $(".location").on('click', function (event) {
+            event.preventDefault()
+            var id = $(this).attr('driver_id');
+            $.post('/backend/verified_drivers/see_location?id=' + id, {}, function (data) {
+                if (data.online) {
+                    console.log("online!")
+                } else {
+                    frmShowError({'ALL': "کاربر مورد نظر در حال حاضر آفلاین میباشد"})
+                }
+            })
+        })
+        $('#example').dataTable({
+            paginate: true,
+            "order": [0, "desc"],
+            "info": false,
+            "bFilter": false
+        });
+    });

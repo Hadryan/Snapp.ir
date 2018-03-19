@@ -1,0 +1,90 @@
+extends ../layout
+block pageTitle
+    title #{appConfig.app.name} #{appConfig.app.version}
+block content
+    // BEGIN CONTENT
+    .page-content-wrapper
+        .page-content
+            // BEGIN PAGE HEADER
+            .row
+                .col-md-12
+                    // BEGIN PAGE TITLE & BREADCRUMB
+                    h3
+                        | نقشه فراوانی مسافران بر اساس مبدا سفر
+                    ul.page-breadcrumb.breadcrumb
+                        li
+                            i.fa.fa-home
+                            a(href='/backend/dashboard') &nbsp; صفحه اصلی
+                            i.fa.fa-angle-left
+                        li
+                            a(href='javascript:;') مدیریت سفرها
+                            i.fa.fa-angle-left
+                        li
+                            a(href='/backend/trips/sources_map') نقشه فراوانی مسافران بر اساس مبدا سفر
+                    // END PAGE TITLE & BREADCRUMB
+            // END PAGE HEADER
+            // BEGIN DASHBOARD STATS
+            .row
+                .col-md-12
+                    // BEGIN EXAMPLE TABLE PORTLET
+                    .portlet.box.blue-chambray
+                        .portlet-title
+                            .caption
+                            .tools
+                                a.collapse(href='javascript:;')
+                                a.config(href='#portlet-config', data-toggle='modal')
+                                a.reload(href='javascript:;')
+                                a.remove(href='javascript:;')
+                        .portlet-body.form
+                            // BEGIN FORM
+                            form#frmUser.horizontal-form(name='frmUser', method='POST', action='')
+                                input#points(type="hidden" value="#{points}")
+                                .form-body
+                                    .row
+                                        .col-md-12
+                                            .form-group
+                                                div#gmap_marker.gmaps(style="height:300px")
+
+                                    .row
+                                        .col-md-4
+                                            a.btn.green(href='javascript:history.back()')
+                                                i.fa.fa-times
+                                                | &nbsp; بازگشت
+// END CONTENT
+block cssHeader
+    link(rel="stylesheet" type="text/css" href="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css")
+    link(rel="stylesheet" type="text/css" href="/javascripts/persianDatepicker/css/persianDatepicker-default.css")
+
+block jsHeader
+    // BEGIN PAGE LEVEL PLUGINS
+    script(type="text/javascript" src="/javascripts/persianDatepicker/js/persianDatepicker.min.js")
+    script(type="text/javascript" src="/metronic_rtl/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js")
+
+
+    // END PAGE LEVEL PLUGINS
+    // BEGIN PAGE LEVEL SCRIPTS
+
+    script.
+        jQuery(document).ready(function() {
+            var map = new GMaps({
+                div: '#gmap_marker',
+                lat: 30.283938,
+                lng: 57.083363
+            });
+            map.setZoom(12);
+            function addCursor(point){
+                setTimeout(function(){
+                    map.addMarker({
+                        lat: point.lat,
+                        lng: point.long,
+                    })
+                },200)
+            }
+            var points=JSON.parse($("#points").val())
+            for(var point in points){
+                if(typeof points[point]=='object'){
+                    addCursor(points[point])
+                }
+            }
+        });
+

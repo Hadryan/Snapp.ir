@@ -1,0 +1,82 @@
+if singleFile
+	.row.images-add-area
+		.col-lg-12.col-md-12.col-sm-12.col-xs-12.has-top-margin.image_0
+			.panel.panel-default
+				.panel-body
+					.cropArea_0.text-center(style="display:none")
+						.cropImageDiv.cropImageDiv_0
+				.panel-footer.text-center(style="overflow: hidden")
+					input.fileInput_0(type="file")
+					span.action-area-0(style="display: none;")
+else
+	button.btn.btn-default(type="button" onclick="addImageUploader();")
+		span.fa.fa-plus.fa-lg
+		| &nbsp;&nbsp;افزودن فایل
+	.row.images-add-area
+script.
+	var singleFile = !{singleFile ? singleFile : false};
+	var maxFileAllowed = !{maxFileAllowed ? maxFileAllowed : 5};
+	var index = 0;
+	var previewContainerSize = 4;
+	var showDeleteIcon = true;
+	if (singleFile) {
+		$(".fileInput_0").change(function () {
+			readFile(this);
+		});
+	}
+	function addImageUploader() {
+		if (index < maxFileAllowed) {
+			var appendData = '<div class="col-lg-' + previewContainerSize + ' col-md-' + previewContainerSize + ' col-sm-' + previewContainerSize + ' col-xs-' + previewContainerSize + ' has-top-margin image_' + index + '">' +
+				'<div class="panel panel-default">' +
+				'<div class="panel-body">' +
+				'<div class="cropArea_' + index + ' text-center" style="display:none">' +
+				'<div class="cropImageDiv cropImageDiv_' + index + '"></div>' +
+				'</div>' +
+				'</div>' +
+				'<div class="panel-footer text-center" style="overflow: hidden">' +
+				'<input class="fileInput_' + index + '" type="file"/>' +
+				'<span class="action-area-' + index + '" style="display: none;">';
+			// '<span class="fa fa-check fa-lg cursor-pointer has_tooltip has-left-margin saveFileBtn" title="تایید تصویر"></span>' +
+			if (showDeleteIcon) {
+				appendData += '<span class="fa fa-trash fa-lg cursor-pointer has_tooltip" title="حذف تصویر" onclick="clearInput(' + index + ');"></span>';
+			}
+			appendData += '</span>' +
+				'</div>' +
+				'</div>' +
+				'</div>';
+			$('.images-add-area').append(appendData);
+			$('.has_tooltip').tooltip({html: true});
+			$(".fileInput_" + index).change(function () {
+				readFile(this);
+			});
+			index++;
+		}
+	}
+	function submitForm(callBack) {
+		var count = 0;
+		$(".images-add-area .cropImageDiv").each(function (index, element) {
+			count++;
+		});
+		if ($(".images-add-area .cropImageDiv").length) {
+			$(".images-add-area .cropImageDiv").each(function (index, element) {
+				saveFileData($(element).children('img').attr('src'), $(element).children('input').val(), index, function (url, type) {
+					$(element).append('<input type="hidden" name="fileUploaded[' + index + ']" value="' + url + '" />');
+					if (index + 1 == count) {
+						if (callBack) {
+							callBack();
+						} else {
+							$("#addForm").submit();
+						}
+					}
+				});
+			});
+		} else {
+			if (callBack) {
+				callBack();
+			} else {
+				$("#addForm").submit();
+			}
+		}
+	};
+//************************* upload *************************
+script(src="/js/upload.js", type="text/javascript")

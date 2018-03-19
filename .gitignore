@@ -1,0 +1,8 @@
+.idea
+config.json
+node_modules
+public
+logs
+public-old
+/hoobergit.js
+.vscode
